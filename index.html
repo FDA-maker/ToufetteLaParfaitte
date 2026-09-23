@@ -1,0 +1,1367 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Menus de la semaine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Young+Serif&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme: light;
+  --bg:#F7F3EA; --surface:#FFFDF8; --ink:#1F3049; --muted:#69717F; --line:#E4DCCB;
+  --basil:#1F3557; --basil-soft:#FBE6DC; --tomato:#C8323C; --slot:#F4EDDF;
+  --blush:#F2BFA8; --bleu:#1E4FA3; --rouge:#C8323C;
+  --serif:"Young Serif", Georgia, "Times New Roman", serif;
+  --sans:"Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --script:"Pacifico", "Brush Script MT", cursive;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--basil);outline-offset:2px}
+.wrap{max-width:1240px;margin:0 auto;padding:20px 16px 60px}
+
+.tricolore{height:6px;border-radius:3px;background:linear-gradient(90deg,var(--bleu) 0 33.3%,#FFFFFF 33.3% 66.6%,var(--rouge) 66.6%);box-shadow:inset 0 0 0 1px var(--line);margin-bottom:18px}
+header.top{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;justify-content:space-between;margin-bottom:18px}
+.brand{display:flex;align-items:center;gap:16px;min-width:0}
+.brand img{width:112px;height:auto;flex:none;filter:drop-shadow(0 2px 4px rgba(31,48,73,.18))}
+@media (max-width:560px){.brand img{width:80px}.brand{gap:10px}}
+h1{font-family:var(--script);font-weight:400;font-size:clamp(28px,4.8vw,44px);line-height:1.25;margin:0;color:var(--ink);text-shadow:2px 2px 0 var(--blush)}
+.weekline{color:var(--muted);margin-top:4px}
+.controls{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center}
+.field-inline{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:15px}
+.weeknav{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.weeknav .arrow{width:38px;height:38px;border-radius:50%;border:2px solid var(--ink);background:var(--surface);color:var(--ink);cursor:pointer;font-size:26px;font-weight:700;line-height:1;display:flex;align-items:center;justify-content:center;padding:0 0 3px}
+.weeknav .arrow:hover{background:var(--ink);color:#FFFDF8}
+input[type=date],input[type=number],input[type=text],input[type=url],select,textarea{
+  background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:7px 9px;min-width:0}
+input[type=number]{width:70px}
+textarea{width:100%;resize:vertical}
+
+nav.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:20px;overflow-x:auto}
+nav.tabs button{background:none;border:0;padding:10px 14px;cursor:pointer;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-1px;white-space:nowrap}
+nav.tabs button[aria-selected=true]{color:var(--ink);border-bottom-color:var(--basil);font-weight:700}
+.count{display:inline-block;min-width:22px;padding:0 6px;margin-left:4px;border-radius:10px;background:var(--basil-soft);color:var(--basil);font-size:13px;text-align:center}
+
+.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);padding:8px 14px;border-radius:6px;cursor:pointer}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--basil);border-color:var(--basil);color:#FFFDF8;font-weight:700}
+.btn.primary:hover{background:#2A4570}
+.btn.danger{color:var(--tomato)}
+.btn.small{padding:5px 10px;font-size:14px}
+.btn:disabled{opacity:.55;cursor:default}
+.linkbtn{background:none;border:0;padding:0;color:var(--basil);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:14px}
+.bar .left,.bar .right{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.hint{color:var(--muted);font-size:14px}
+
+/* Semainier */
+.week{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border:2px solid var(--ink);border-radius:14px;overflow:hidden;background:var(--surface)}
+.day{border-left:1px solid var(--line);display:flex;flex-direction:column;min-width:0}
+.day:first-child{border-left:0}
+.dayhead{padding:12px 12px 8px}
+.dayname{font-family:var(--serif);font-size:22px;line-height:1.1}
+.daydate{color:var(--muted);font-size:13px}
+.day.today .dayname{color:var(--rouge)}
+.day.today .daydate::after{content:" · aujourd'hui";color:var(--rouge)}
+.slotwrap{position:relative;margin:0 8px 8px}
+.slot{margin:0;padding:10px 30px 26px 10px;border-radius:10px;background:var(--slot);border:1.5px dashed transparent;text-align:left;cursor:pointer;min-height:84px;display:flex;flex-direction:column;gap:3px;width:100%;height:100%}
+.slot:hover{border-color:var(--ink)}
+.slot.empty{background:transparent;border-color:#CFC5B1}
+.slot .emo{font-size:26px;line-height:1.1}
+.slot .meal{font-size:12px;color:var(--muted)}
+.slot .rname{font-weight:700;line-height:1.25;overflow-wrap:anywhere}
+.slot .kcal{font-size:13px;color:var(--muted);white-space:nowrap}
+.pstep{position:absolute;right:6px;bottom:4px;display:flex;align-items:center;gap:2px;font-size:13px;color:var(--ink);font-weight:700}
+.pstep button{width:22px;height:22px;border-radius:50%;border:1px solid var(--line);background:var(--surface);cursor:pointer;font-size:14px;line-height:1;padding:0;color:var(--ink)}
+.pstep button:hover{border-color:var(--ink)}
+.pstep span{min-width:30px;text-align:center;font-variant-numeric:tabular-nums}
+.rlink .short{display:none}
+.slot .note{font-style:italic;color:var(--muted);overflow-wrap:anywhere}
+.slot.empty .add{color:var(--muted);margin-top:auto}
+.slot.busy{border-color:var(--basil);border-style:solid}
+.slot.busy .add{color:var(--basil)}
+.rlink{position:absolute;right:36px;top:9px;font-size:13px;line-height:1.2;color:var(--bleu);text-decoration:none;font-weight:700}
+.rlink:hover{text-decoration:underline}
+.propose{position:absolute;top:5px;right:5px;width:26px;height:26px;border-radius:50%;border:1px solid var(--line);background:var(--surface);cursor:pointer;font-size:13px;line-height:1;display:flex;align-items:center;justify-content:center;color:var(--basil)}
+.propose:hover{border-color:var(--basil)}
+.propose:disabled{opacity:.4;cursor:default}
+.planstatus{font-size:14px;color:var(--basil)}
+.planstatus.err{color:var(--tomato)}
+.checks{display:flex;gap:16px;flex-wrap:wrap}
+.checks label{display:flex;gap:6px;align-items:center}
+@media (max-width:860px){
+  .week{grid-template-columns:1fr}
+  .day{border-left:0;border-top:1px solid var(--line);display:grid;grid-template-columns:92px repeat(3,minmax(0,1fr));align-items:stretch;padding:8px 0}
+  .day:first-child{border-top:0}
+  .dayhead{padding:6px 10px}
+  .slotwrap{margin:0 8px 0 0}
+  .slot{min-height:70px}
+}
+@media (max-width:480px){
+  .day{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:6px;padding:8px 6px}
+  .dayhead{grid-column:1 / -1;display:flex;gap:10px;align-items:baseline;padding:4px 4px 0}
+  .slotwrap{margin:0 3px}
+  .slot{padding:8px 26px 24px 8px;font-size:14px}
+  .slot .emo{font-size:22px}
+  .rlink{right:32px}
+  .rlink .long{display:none} .rlink .short{display:inline}
+  .pstep{right:4px}
+}
+
+/* Recettes */
+.recipes{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.rcard{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px}
+.rcard h3{font-family:var(--serif);font-weight:400;font-size:20px;margin:0;line-height:1.2;overflow-wrap:anywhere}
+.rcard .meta{color:var(--muted);font-size:14px}
+.rcard .ings{font-size:14px;color:var(--muted);overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical}
+.rcard .actions{display:flex;gap:8px;margin-top:auto;padding-top:6px;flex-wrap:wrap}
+.tag{display:inline-block;font-size:12px;padding:1px 7px;border-radius:9px;background:var(--basil-soft);color:var(--basil)}
+.tag.warn{background:transparent;border:1px solid var(--tomato);color:var(--tomato)}
+a{color:var(--bleu)}
+
+.empty-state{border:1px dashed var(--line);border-radius:10px;padding:28px;text-align:center;color:var(--muted)}
+.empty-state p{margin:0 0 12px}
+
+/* Courses */
+.aisles{columns:2 340px;column-gap:28px}
+.aisle{break-inside:avoid;margin-bottom:22px}
+.aisle h3{font-family:var(--serif);font-weight:400;font-size:20px;margin:0 0 6px;padding-bottom:4px;border-bottom:1px solid var(--line)}
+.item{display:flex;align-items:flex-start;gap:10px;padding:6px 0;border-bottom:1px dotted var(--line)}
+.item input{margin-top:4px;width:18px;height:18px;accent-color:var(--basil);flex:none}
+.item .iname{flex:1;min-width:0}
+.item .iname small{display:block;color:var(--muted);font-size:13px;line-height:1.3}
+.item .iqty{white-space:nowrap;font-variant-numeric:tabular-nums;font-weight:700}
+.item.done .iname,.item.done .iqty{text-decoration:line-through;color:var(--muted);font-weight:400}
+.item .rm{background:none;border:0;color:var(--muted);cursor:pointer;padding:0 4px}
+.extra-form{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:18px}
+.extra-form input[type=text]{flex:1 1 180px}
+
+/* Dialogues */
+dialog{border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);padding:0;width:min(760px,calc(100vw - 24px));max-height:calc(100vh - 40px)}
+dialog::backdrop{background:rgba(10,15,20,.45)}
+.dlg{display:flex;flex-direction:column;max-height:calc(100vh - 42px)}
+.dlg-head{padding:16px 20px 10px;border-bottom:1px solid var(--line)}
+.dlg-head h2{font-family:var(--serif);font-weight:400;font-size:24px;margin:0}
+.dlg-body{padding:16px 20px;overflow:auto;display:flex;flex-direction:column;gap:14px}
+.dlg-foot{padding:12px 20px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:space-between;flex-wrap:wrap}
+.dlg-foot .grp{display:flex;gap:8px}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:14px;color:var(--muted)}
+label.f > input,label.f > select,label.f > textarea{color:var(--ink);font-size:16px}
+.row{display:flex;gap:12px;flex-wrap:wrap}
+.row > *{flex:1 1 200px}
+.importbox{background:var(--basil-soft);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px}
+.importbox .top{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center}
+.importbox strong{font-weight:700}
+.status{font-size:14px;color:var(--muted);min-height:1.5em}
+.status.err{color:var(--tomato)}
+.ing-table{width:100%;border-collapse:collapse}
+.ing-table th{text-align:left;font-weight:400;font-size:13px;color:var(--muted);padding:0 4px 4px}
+.ing-table td{padding:3px 4px;vertical-align:middle}
+.ing-table input,.ing-table select{width:100%;padding:6px 7px;font-size:15px}
+.ing-table td.q{width:78px}.ing-table td.u{width:112px}.ing-table td.a{width:170px}.ing-table td.x{width:32px}
+.ing-scroll{overflow-x:auto}
+.ing-table .x button{background:none;border:0;color:var(--muted);cursor:pointer;font-size:18px}
+#slotStatus:empty{display:none}
+.fromsite{border:2px solid var(--ink);border-radius:14px;background:var(--surface);padding:14px 16px;margin-bottom:16px;display:grid;grid-template-columns:auto 1fr;gap:6px 18px;align-items:center}
+.fromsite h3{grid-column:1 / -1;font-family:var(--serif);font-weight:400;font-size:20px;margin:0}
+.fromsite ol{margin:0;padding-left:20px;font-size:15px}
+.fromsite ol li{margin:2px 0}
+.bookmarklet{display:inline-flex;align-items:center;gap:6px;padding:10px 16px;border-radius:999px;background:var(--rouge);color:#FFFDF8 !important;font-weight:700;text-decoration:none;cursor:grab;box-shadow:0 2px 0 var(--ink);white-space:nowrap}
+.bookmarklet:active{cursor:grabbing}
+.fromsite .hint{grid-column:1 / -1}
+@media (max-width:640px){.fromsite{grid-template-columns:1fr}}
+.chosen{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;border:2px solid var(--ink);background:var(--slot)}
+.chosen.none{border:2px dashed #CFC5B1;background:transparent;color:var(--muted)}
+.chosen .cemo{font-size:34px;line-height:1}
+.chosen .cbody{flex:1;min-width:0}
+.chosen .clabel{font-size:12px;color:var(--muted)}
+.chosen .cname{font-family:var(--serif);font-size:20px;line-height:1.2;color:var(--ink);overflow-wrap:anywhere}
+.chosen .cmeta{font-size:13px;color:var(--muted)}
+.picklist{display:flex;flex-direction:column;gap:4px;max-height:280px;overflow:auto;border:1px solid var(--line);border-radius:10px;padding:6px;background:var(--surface)}
+.pick{display:grid;grid-template-columns:22px 30px 1fr;align-items:center;gap:8px;text-align:left;background:none;border:1.5px solid transparent;padding:7px 10px;border-radius:8px;cursor:pointer;width:100%}
+.pick:hover{background:var(--slot);border-color:var(--line)}
+.pick .radio{width:20px;height:20px;border-radius:50%;border:2px solid #B9AF9B;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:transparent}
+.pick .pemo{font-size:22px;line-height:1;text-align:center}
+.pick .pname{font-weight:700;line-height:1.25;overflow-wrap:anywhere}
+.pick .pmeta{display:block;font-weight:400;font-size:13px;color:var(--muted)}
+.pick[aria-checked=true]{background:var(--ink);border-color:var(--ink);color:#FFFDF8}
+.pick[aria-checked=true] .pmeta{color:#D9DEE8}
+.pick[aria-checked=true] .radio{background:#FFFDF8;border-color:#FFFDF8;color:var(--ink)}
+.stepper{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.stepper button{border:0;background:var(--slot);width:34px;height:34px;cursor:pointer;font-size:18px}
+.stepper span{min-width:42px;text-align:center;font-variant-numeric:tabular-nums}
+
+.savestate{font-size:13px;color:var(--muted)}
+[hidden]{display:none !important}
+
+/* Impression */
+#print-area{display:none}
+@media print{
+  :root{--bg:#fff;--surface:#fff;--ink:#000;--muted:#555;--line:#bbb;padding:0}
+  body{background:#fff}
+  .wrap,dialog{display:none !important}
+  #print-area{display:block}
+}
+.p-page{font-family:var(--sans);color:#000}
+.p-page h1{font-family:var(--script);font-weight:400;font-size:26px;margin:0 0 2px}
+.p-head{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.p-head img{width:64px;height:auto}
+.p-page .sub{color:#555;margin:0 0 12px;font-size:13px}
+.p-planning{page:paysage}
+@page paysage{size:A4 landscape;margin:10mm}
+@page{size:A4;margin:12mm}
+.p-table{width:100%;border-collapse:collapse;table-layout:fixed}
+.p-table th,.p-table td{border:1px solid #999;padding:6px;vertical-align:top;font-size:12px}
+.p-table th{font-family:var(--serif);font-weight:400;font-size:15px;text-align:left}
+.p-table th small{display:block;font-family:var(--sans);font-size:11px;color:#555}
+.p-table td.meal{width:52px;font-weight:700;font-size:11px;color:#555}
+.p-table td{height:24mm}
+.p-table .pr{font-weight:700;font-size:13px}
+.p-table .pp{color:#555;font-size:11px}
+.p-table .pn{font-style:italic}
+.p-cols{columns:2;column-gap:10mm}
+.p-aisle{break-inside:avoid;margin-bottom:5mm}
+.p-aisle h2{font-family:var(--serif);font-weight:400;font-size:15px;margin:0 0 2mm;border-bottom:1px solid #999}
+.p-it{display:flex;gap:6px;font-size:12px;padding:1.2mm 0;border-bottom:1px dotted #bbb}
+.p-it .b{width:10px;height:10px;border:1px solid #000;flex:none;margin-top:2px}
+.p-it .n{flex:1}
+.p-it .q{font-weight:700;white-space:nowrap}
+.p-recipes{margin-top:6mm;font-size:11px;color:#333;columns:2}
+.p-recipes div{break-inside:avoid}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="tricolore" aria-hidden="true"></div>
+  <header class="top">
+    <div class="brand">
+      <img id="logo" alt="Toufette la parfaite" src="data:image/webp;base64,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">
+      <div>
+        <h1>Menus de la semaine</h1>
+        <div class="weekline" id="weekline"></div>
+      </div>
+    </div>
+    <div class="controls">
+      <div class="weeknav">
+        <button class="arrow" id="prevWeek" type="button" aria-label="Semaine précédente" title="Semaine précédente">‹</button>
+        <label class="field-inline">Semaine du <input type="date" id="weekStart"></label>
+        <button class="arrow" id="nextWeek" type="button" aria-label="Semaine suivante" title="Semaine suivante">›</button>
+        <button class="btn small" id="thisWeek" type="button">Cette semaine</button>
+      </div>
+      <label class="field-inline">Personnes par défaut <input type="number" id="household" min="1" max="30"></label>
+      <button class="btn small" id="openSettings">Réglages et sauvegarde</button>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button role="tab" data-tab="planning" aria-selected="true">Planning</button>
+    <button role="tab" data-tab="recettes" aria-selected="false">Recettes <span class="count" id="nRecipes">0</span></button>
+    <button role="tab" data-tab="courses" aria-selected="false">Liste de courses <span class="count" id="nItems">0</span></button>
+  </nav>
+
+  <section id="tab-planning">
+    <div class="bar">
+      <div class="left"><span class="hint" id="planHint">Cliquez sur un repas pour le remplir, ou sur ✦ pour que Toufette propose une recette.</span><span class="planstatus" id="planStatus" hidden></span></div>
+      <div class="right">
+        <button class="btn small" id="stopPropose" hidden>Arrêter</button>
+        <button class="btn small ai" id="proposeWeek">✦ Proposer la semaine</button>
+        <button class="btn small ai" id="kcalWeek">✦ Calculer les calories</button>
+        <button class="btn small danger" id="clearWeek">Vider la semaine</button>
+        <button class="btn primary" data-print="planning">Imprimer le planning</button>
+      </div>
+    </div>
+    <div class="week" id="week"></div>
+  </section>
+
+  <section id="tab-recettes" hidden>
+    <div class="bar">
+      <div class="left"><input type="text" id="rsearch" placeholder="Rechercher une recette" aria-label="Rechercher une recette"></div>
+      <div class="right"><button class="btn primary" id="newRecipe">Ajouter une recette</button></div>
+    </div>
+    <div class="fromsite" id="fromSite">
+      <h3>Ajouter une recette depuis un site</h3>
+      <a class="bookmarklet" id="bookmarklet" href="#" title="Glissez-moi dans votre barre de favoris">📋 Copier pour Toufette</a>
+      <ol>
+        <li><strong>Le plus simple :</strong> « Ajouter une recette », puis collez le lien (Marmiton, 750g, Cuisine AZ…) dans « Demander à Toufette » : elle ouvre la page et en tire la recette.</li>
+        <li><strong>Si un site résiste</strong> (lecture bloquée, recette affichée par script) : glissez une fois le bouton rouge dans votre barre de favoris.</li>
+        <li>Sur la page de la recette, <strong>cliquez sur ce favori</strong> : elle est copiée. Collez-la ensuite dans « Demander à Toufette ».</li>
+      </ol>
+      <p class="hint" style="margin:4px 0 0">Les ingrédients, quantités et étapes sont ceux du site, et le lien de la recette est gardé. Barre de favoris cachée ? Ctrl+Maj+B (Cmd+Maj+B sur Mac).</p>
+    </div>
+    <div id="recipes"></div>
+  </section>
+
+  <section id="tab-courses" hidden>
+    <div class="bar">
+      <div class="left"><span class="hint" id="coursesHint"></span></div>
+      <div class="right">
+        <button class="btn small" id="uncheckAll">Tout décocher</button>
+        <button class="btn small" id="copyList">Copier la liste</button>
+        <button class="btn primary" data-print="courses">Imprimer la liste</button>
+      </div>
+    </div>
+    <form class="extra-form" id="extraForm">
+      <input type="text" id="exName" placeholder="Ajouter un article (ex. papier toilette)" aria-label="Article à ajouter">
+      <input type="text" id="exQty" placeholder="Qté" aria-label="Quantité" style="width:80px;flex:none">
+      <select id="exAisle" aria-label="Rayon"></select>
+      <button class="btn" type="submit">Ajouter</button>
+    </form>
+    <div id="shopping"></div>
+    <textarea id="copyFallback" hidden rows="8" aria-label="Liste à copier"></textarea>
+  </section>
+</div>
+
+<!-- Dialogue : repas -->
+<dialog id="slotDlg">
+  <div class="dlg">
+    <div class="dlg-head"><h2 id="slotTitle"></h2></div>
+    <div class="dlg-body">
+      <div class="chosen none" id="slotChosen" aria-live="polite"></div>
+      <div class="row" style="align-items:center">
+        <input type="text" id="slotSearch" placeholder="Chercher dans mes recettes" aria-label="Chercher dans mes recettes">
+        <button class="btn ai" id="slotPropose" style="flex:0 0 auto">✦ Proposer une recette</button>
+        <button class="btn" id="slotNew" style="flex:0 0 auto">Nouvelle recette</button>
+      </div>
+      <span class="status" id="slotStatus"></span>
+      <div class="picklist" id="slotPick" role="radiogroup" aria-label="Mes recettes"></div>
+      <div class="row" style="align-items:center">
+        <div style="flex:0 0 auto;display:flex;align-items:center;gap:10px">
+          <span class="hint">Nombre de personnes</span>
+          <span class="stepper"><button type="button" id="pMinus" aria-label="Moins">−</button><span id="pVal">2</span><button type="button" id="pPlus" aria-label="Plus">+</button></span>
+        </div>
+        <label class="f">Note (restes, resto, dîner chez des amis…)<input type="text" id="slotNote"></label>
+      </div>
+    </div>
+    <div class="dlg-foot">
+      <button class="btn danger" id="slotClear">Vider ce repas</button>
+      <div class="grp"><button class="btn" id="slotCancel">Annuler</button><button class="btn primary" id="slotSave">Enregistrer</button></div>
+    </div>
+  </div>
+</dialog>
+
+<!-- Dialogue : recette -->
+<dialog id="recDlg">
+  <div class="dlg">
+    <div class="dlg-head"><h2 id="recTitle">Nouvelle recette</h2></div>
+    <div class="dlg-body">
+      <div class="importbox" id="importBox">
+        <div class="top"><strong>Demander à Toufette</strong><span class="hint">Collez le lien d'une recette (Toufette l'ouvre), son texte, ou tapez un nom de plat.</span></div>
+        <textarea id="importText" rows="4" placeholder="Ex. : « Gratin dauphinois » — ou collez tout le texte d'une recette copié depuis un site"></textarea>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <button class="btn primary small" id="importBtn">Remplir la recette</button>
+          <button class="btn small" id="importStop" hidden>Arrêter</button>
+          <span class="status" id="importStatus"></span>
+        </div>
+      </div>
+      <div class="row">
+        <label class="f" style="flex:0 0 76px">Picto<input type="text" id="rEmoji" maxlength="8" style="width:100%;text-align:center;font-size:22px;padding:3px" aria-label="Picto de la recette"></label>
+        <label class="f">Nom de la recette<input type="text" id="rName" required></label>
+        <label class="f" style="flex:0 0 130px">Pour (personnes)<input type="number" id="rServ" min="1" max="50" value="4" style="width:100%"></label>
+      </div>
+      <div class="row" style="align-items:flex-end">
+        <label class="f" style="flex:0 0 150px">Calories par personne<input type="number" id="rKcal" min="0" max="5000" placeholder="kcal" style="width:100%"></label>
+        <div style="flex:1 1 200px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <button class="btn small ai" type="button" id="kcalOne">✦ Demander à Toufette</button>
+          <span class="status" id="kcalStatus"></span>
+        </div>
+      </div>
+      <label class="f">Lien vers la recette (facultatif)<input type="url" id="rUrl" placeholder="https://…"></label>
+      <div>
+        <div class="hint" style="margin-bottom:4px">Ingrédients (quantités pour le nombre de personnes ci-dessus)</div>
+        <div class="ing-scroll">
+          <table class="ing-table">
+            <thead><tr><th>Qté</th><th>Unité</th><th>Ingrédient</th><th>Rayon</th><th></th></tr></thead>
+            <tbody id="ingBody"></tbody>
+          </table>
+        </div>
+        <button class="btn small" id="addIng" style="margin-top:6px">Ajouter un ingrédient</button>
+      </div>
+      <label class="f">Étapes / notes (facultatif)<textarea id="rSteps" rows="4"></textarea></label>
+      <datalist id="units"></datalist>
+    </div>
+    <div class="dlg-foot">
+      <button class="btn danger" id="recDelete">Supprimer la recette</button>
+      <div class="grp"><button class="btn" id="recCancel">Annuler</button><button class="btn primary" id="recSave">Enregistrer la recette</button></div>
+    </div>
+  </div>
+</dialog>
+
+<!-- Dialogue : proposer la semaine -->
+<dialog id="weekDlg">
+  <div class="dlg">
+    <div class="dlg-head"><h2>Proposer les menus de la semaine</h2></div>
+    <div class="dlg-body">
+      <label class="f">Vos envies et contraintes (facultatif)
+        <textarea id="wPrefs" rows="3" placeholder="Ex. : végétarien 2 soirs, plats rapides en semaine, poisson le vendredi, enfants de 6 et 9 ans, pas de champignons, légumes de saison…"></textarea></label>
+      <div>
+        <div class="hint" style="margin-bottom:6px">Repas à remplir</div>
+        <div class="checks">
+          <label><input type="checkbox" id="wMidi" checked> Midi</label>
+          <label><input type="checkbox" id="wGouter" checked> Goûter</label>
+          <label><input type="checkbox" id="wSoir" checked> Soir</label>
+        </div>
+      </div>
+      <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="wPairs" checked> Même plat lundi et mardi, et jeudi et vendredi (midi et soir)</label>
+      <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="wSunEve"> Proposer aussi le dimanche soir</label>
+      <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="wReplace"> Remplacer aussi les repas déjà remplis</label>
+      <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="wReuse" checked> Réutiliser mes recettes quand elles conviennent</label>
+      <p class="hint" style="margin:0">Toufette propose des recettes classiques avec leurs ingrédients : elles s'ajoutent à vos recettes, marquées « à vérifier », et la liste de courses se met à jour.</p>
+    </div>
+    <div class="dlg-foot">
+      <span></span>
+      <div class="grp"><button class="btn" id="wCancel">Annuler</button><button class="btn primary" id="wGo">Proposer</button></div>
+    </div>
+  </div>
+</dialog>
+
+<!-- Dialogue : réglages et sauvegarde -->
+<dialog id="setDlg">
+  <div class="dlg">
+    <div class="dlg-head"><h2>Réglages et sauvegarde</h2></div>
+    <div class="dlg-body">
+      <div>
+        <label class="f">Clé d'API Anthropic — nécessaire pour Toufette (propositions, calories, import de recettes)
+          <input type="password" id="apiKey" autocomplete="off" spellcheck="false" placeholder="sk-ant-…"></label>
+        <p class="hint" style="margin:6px 0 0">Créez-la sur <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a>. Elle reste dans ce navigateur, n'est jamais enregistrée dans la page ni dans vos sauvegardes, et n'est envoyée qu'à Anthropic.</p>
+        <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;align-items:center">
+          <button class="btn small" id="testKey">Tester la clé</button>
+          <button class="btn small danger" id="forgetKey">Oublier la clé</button>
+          <span class="status" id="keyStatus"></span>
+        </div>
+      </div>
+      <label class="f">Modèle Claude utilisé par Toufette<input type="text" id="apiModel" spellcheck="false"></label>
+      <div>
+        <div class="hint" style="margin-bottom:6px">Vos menus et recettes sont enregistrés dans ce navigateur. Pour les mettre à l'abri ou les transférer sur un autre appareil, faites une sauvegarde.</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <button class="btn small" id="exportData">Télécharger une sauvegarde</button>
+          <label class="btn small" style="cursor:pointer">Restaurer une sauvegarde<input type="file" id="importData" accept=".json,application/json" hidden></label>
+          <span class="status" id="dataStatus"></span>
+        </div>
+      </div>
+    </div>
+    <div class="dlg-foot"><span></span><div class="grp"><button class="btn primary" id="setClose">Fermer</button></div></div>
+  </div>
+</dialog>
+
+<div id="print-area"></div>
+
+<script>
+(() => {
+"use strict";
+const DAYS = ["Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi","Dimanche"];
+const MEALS = [["midi","Midi"],["gouter","Goûter"],["soir","Soir"]];
+const AISLES = ["Fruits et légumes","Boucherie et poisson","Crèmerie et œufs","Épicerie salée","Épicerie sucrée","Boulangerie","Surgelés","Boissons","Hygiène et maison","Autres"];
+const UNITS = ["g","kg","ml","cl","l","pièce","c. à s.","c. à c.","pincée","gousse","botte","tranche","boîte","sachet","paquet","pot"];
+const LS_KEY = "menus-semaine-v1";
+const $ = s => document.querySelector(s);
+const el = (tag, props = {}, ...kids) => {
+  const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(props)) {
+    if (k === "class") n.className = v;
+    else if (k === "text") n.textContent = v;
+    else if (k.startsWith("on")) n.addEventListener(k.slice(2), v);
+    else if (v !== undefined && v !== null && v !== false) n.setAttribute(k, v === true ? "" : v);
+  }
+  for (const k of kids.flat()) if (k != null) n.append(k.nodeType ? k : String(k));
+  return n;
+};
+const uid = () => Math.random().toString(36).slice(2, 10);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+function mondayOf(d){ const x = new Date(d); x.setHours(12,0,0,0); const wd = (x.getDay()+6)%7; x.setDate(x.getDate()-wd); return x; }
+function isoDate(d){ const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,"0"), dd=String(d.getDate()).padStart(2,"0"); return `${y}-${m}-${dd}`; }
+function parseISO(s){ const [y,m,d] = s.split("-").map(Number); return new Date(y, m-1, d, 12); }
+const fmtDay = d => d.toLocaleDateString("fr-FR", {day:"numeric", month:"short"});
+const fmtLong = d => d.toLocaleDateString("fr-FR", {day:"numeric", month:"long", year:"numeric"});
+
+/* ---------- État ---------- */
+function freshState(){ return { v:1, household:2, weekStart: isoDate(mondayOf(new Date())), recipes:{}, plan:{}, checked:{}, extras:[], prefs:"", weeks:{} }; }
+let state = freshState();
+try { const raw = localStorage.getItem(LS_KEY); if (raw) state = Object.assign(freshState(), JSON.parse(raw)); } catch(e) {}
+
+function setSaveState(t){ const e = $("#savestate"); if (e) e.textContent = t; }
+function persist(){ try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch(e) {} }
+function commit(){ persist(); render(); }
+
+/* ---------- Toufette : appel direct à l'API Anthropic ---------- */
+const KEY_LS = "toufette-cle", MODEL_LS = "toufette-modele", DEFAULT_MODEL = "claude-sonnet-5";
+const lsGet = k => { try { return localStorage.getItem(k) || ""; } catch(e) { return ""; } };
+const lsSet = (k, v) => { try { v ? localStorage.setItem(k, v) : localStorage.removeItem(k); } catch(e) {} };
+const apiKey = () => lsGet(KEY_LS).trim();
+const apiModel = () => lsGet(MODEL_LS).trim() || DEFAULT_MODEL;
+const aiOn = true;
+const NO_CLAUDE = "";
+function initCloud(){ setSaveState(""); }
+function initCaps(){}
+async function getSample(){ return sample; }
+
+// webFetch : autorise Toufette à lire elle-même la page d'une recette
+async function askClaude(prompt, { signal, onText, webFetch = false } = {}){
+  if (!apiKey()) { openSettings("Ajoutez votre clé d'API pour que Toufette puisse travailler."); throw { code: "no_key" }; }
+  const headers = {
+    "content-type": "application/json",
+    "x-api-key": apiKey(),
+    "anthropic-version": "2023-06-01",
+    "anthropic-dangerous-direct-browser-access": "true",
+  };
+  const body = { model: apiModel(), max_tokens: 8000, stream: true, messages: [{ role: "user", content: prompt }] };
+  if (webFetch) {
+    headers["anthropic-beta"] = "web-fetch-2025-09-10";
+    body.tools = [{ type: "web_fetch_20250910", name: "web_fetch", max_uses: 2 }];
+  }
+  let res;
+  try { res = await fetch("https://api.anthropic.com/v1/messages", { method: "POST", headers, body: JSON.stringify(body), signal }); }
+  catch(e) { throw (e && e.name === "AbortError") ? { code: "cancelled" } : { code: "upstream_error", message: "connexion à Anthropic impossible" }; }
+  if (!res.ok) {
+    let m = "erreur " + res.status; try { const j = await res.json(); if (j && j.error && j.error.message) m = j.error.message; } catch(e) {}
+    if (res.status === 401) m = "clé d'API refusée, vérifiez-la dans les réglages";
+    throw { code: res.status === 429 ? "rate_limited" : "upstream_error", message: m };
+  }
+  const reader = res.body.getReader(), dec = new TextDecoder();
+  let buf = "", text = "", segments = [];
+  const handle = line => {
+    if (!line.startsWith("data:")) return;
+    let ev; try { ev = JSON.parse(line.slice(5).trim()); } catch(e) { return; }
+    if (ev.type === "content_block_start" && ev.content_block && ev.content_block.type === "text") segments.push("");
+    else if (ev.type === "content_block_delta" && ev.delta && ev.delta.type === "text_delta") {
+      if (!segments.length) segments.push("");
+      segments[segments.length - 1] += ev.delta.text;
+      text += ev.delta.text;
+      if (onText) onText({ text, delta: ev.delta.text });
+    } else if (ev.type === "error") throw { code: "upstream_error", message: (ev.error && ev.error.message) || "erreur Claude", text };
+  };
+  try {
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buf += dec.decode(value, { stream: true });
+      const lines = buf.split("\n"); buf = lines.pop();
+      lines.forEach(handle);
+    }
+    handle(buf);
+  } catch(e) {
+    if (e && e.code) throw e;
+    throw (signal && signal.aborted) ? { code: "cancelled", text } : { code: "upstream_error", text };
+  }
+  if (!text.trim()) throw { code: "empty_completion" };
+  return { text, lastSegment: segments.filter(x => x.trim()).pop() || text };
+}
+function parseJsonLoose(text){
+  const t = text.trim();
+  try { return JSON.parse(t); } catch(e) {}
+  const f = t.match(/```(?:json)?\s*([\s\S]*?)```/); if (f) { try { return JSON.parse(f[1]); } catch(e) {} }
+  const i = t.indexOf("{"), j = t.lastIndexOf("}");
+  if (i >= 0 && j > i) { try { return JSON.parse(t.slice(i, j + 1)); } catch(e) {} }
+  throw { code: "invalid_json", text };
+}
+const sample = Object.assign((p, o) => askClaude(p, o), {
+  json: async (p, o) => {
+    const r = await askClaude(p + "\n\nTa réponse finale doit être uniquement le JSON, sans aucun texte autour.", o);
+    try { return parseJsonLoose(r.lastSegment); } catch(e) { return parseJsonLoose(r.text); }
+  }
+});
+
+/* ---------- Réglages et sauvegarde ---------- */
+function openSettings(msg){
+  $("#apiKey").value = apiKey();
+  $("#apiModel").value = apiModel();
+  const ks = $("#keyStatus");
+  ks.textContent = msg || (apiKey() ? "Clé enregistrée dans ce navigateur." : "Aucune clé pour l'instant.");
+  ks.classList.toggle("err", !!msg);
+  $("#dataStatus").textContent = "";
+  if (!$("#setDlg").open) $("#setDlg").showModal();
+  if (msg) $("#apiKey").focus();
+}
+function saveSettings(){
+  lsSet(KEY_LS, $("#apiKey").value.trim());
+  const m = $("#apiModel").value.trim();
+  lsSet(MODEL_LS, m && m !== DEFAULT_MODEL ? m : "");
+}
+$("#openSettings").addEventListener("click", () => openSettings());
+$("#apiKey").addEventListener("change", saveSettings);
+$("#apiModel").addEventListener("change", saveSettings);
+$("#setClose").addEventListener("click", () => { saveSettings(); $("#setDlg").close(); });
+$("#setDlg").addEventListener("close", saveSettings);
+$("#forgetKey").addEventListener("click", () => { $("#apiKey").value = ""; saveSettings(); const k = $("#keyStatus"); k.textContent = "Clé effacée de ce navigateur."; k.classList.remove("err"); });
+$("#testKey").addEventListener("click", async () => {
+  saveSettings();
+  const st = $("#keyStatus"); st.classList.remove("err");
+  if (!apiKey()) { st.textContent = "Collez d'abord votre clé."; st.classList.add("err"); return; }
+  st.textContent = "Test en cours…";
+  try { await askClaude("Réponds simplement : OK"); st.textContent = "La clé fonctionne."; }
+  catch(e) { st.textContent = "Échec : " + (e.message || e.code); st.classList.add("err"); }
+});
+$("#exportData").addEventListener("click", () => {
+  const blob = new Blob([JSON.stringify({ app: "toufette", savedAt: new Date().toISOString(), state }, null, 1)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `toufette-sauvegarde-${isoDate(new Date())}.json`;
+  document.body.append(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  $("#dataStatus").textContent = "Sauvegarde téléchargée.";
+});
+$("#importData").addEventListener("change", async e => {
+  const f = e.target.files && e.target.files[0]; e.target.value = "";
+  if (!f) return;
+  const ds = $("#dataStatus"); ds.classList.remove("err");
+  try {
+    const data = JSON.parse(await f.text());
+    const st = data && data.state;
+    if (!st || typeof st.recipes !== "object" || typeof st.plan !== "object") throw 0;
+    if (!confirm(`Remplacer vos données actuelles par cette sauvegarde (${Object.keys(st.recipes).length} recettes) ?`)) return;
+    state = Object.assign(freshState(), st); commit();
+    ds.textContent = "Sauvegarde restaurée.";
+  } catch(err) { ds.textContent = "Ce fichier n'est pas une sauvegarde valide."; ds.classList.add("err"); }
+});
+
+/* ---------- Quantités ---------- */
+const UNIT_ALIASES = {
+  "kg":["g",1000], "kilo":["g",1000], "kilos":["g",1000], "g":["g",1], "gr":["g",1], "gramme":["g",1], "grammes":["g",1],
+  "l":["ml",1000], "litre":["ml",1000], "litres":["ml",1000], "cl":["ml",10], "dl":["ml",100], "ml":["ml",1],
+  "c. à s.":["c. à s.",1], "c. à soupe":["c. à s.",1], "cuillère à soupe":["c. à s.",1], "cuillères à soupe":["c. à s.",1], "cs":["c. à s.",1], "càs":["c. à s.",1], "c.a.s":["c. à s.",1], "cas":["c. à s.",1],
+  "c. à c.":["c. à c.",1], "c. à café":["c. à c.",1], "cuillère à café":["c. à c.",1], "cuillères à café":["c. à c.",1], "cc":["c. à c.",1], "càc":["c. à c.",1], "cac":["c. à c.",1],
+  "":["pièce",1], "pièce":["pièce",1], "pièces":["pièce",1], "pc":["pièce",1], "u":["pièce",1], "unité":["pièce",1], "unités":["pièce",1]
+};
+function normUnit(u){
+  const k = String(u || "").trim().toLowerCase();
+  if (UNIT_ALIASES[k]) return UNIT_ALIASES[k];
+  return [k.replace(/s$/, "") || "pièce", 1];
+}
+const normName = n => String(n || "").trim().toLowerCase().replace(/\s+/g, " ");
+function roundQty(q, unit){
+  if (unit === "g" || unit === "ml") return q >= 100 ? Math.round(q/10)*10 : Math.max(1, Math.round(q/5)*5 || Math.round(q));
+  if (unit === "pièce" || unit === "gousse" || unit === "boîte" || unit === "sachet" || unit === "paquet" || unit === "pot" || unit === "botte" || unit === "tranche") return Math.ceil(q*2 - 1e-9)/2;
+  return Math.round(q*10)/10;
+}
+function fmtNum(n){ return Number.isInteger(n) ? String(n) : n.toLocaleString("fr-FR", {maximumFractionDigits:1}); }
+function fmtQty(q, unit){
+  if (q == null) return "";
+  if (unit === "g" && q >= 1000) return fmtNum(Math.round(q/100)/10) + " kg";
+  if (unit === "ml" && q >= 1000) return fmtNum(Math.round(q/100)/10) + " l";
+  if (unit === "ml" && q >= 100 && q % 10 === 0) return fmtNum(q/10) + " cl";
+  if (unit === "pièce") return "× " + fmtNum(q);
+  return fmtNum(q) + " " + unit;
+}
+function parseQty(v){
+  if (v === null || v === undefined || v === "") return null;
+  if (typeof v === "number") return isFinite(v) ? v : null;
+  const s = String(v).trim().replace(",", ".");
+  const frac = s.match(/^(\d+)\s*\/\s*(\d+)$/); if (frac) return Number(frac[1]) / Number(frac[2]);
+  const n = parseFloat(s); return isFinite(n) ? n : null;
+}
+
+function buildShopping(){
+  const map = new Map();
+  for (const [key, slot] of Object.entries(state.plan)) {
+    const r = slot.recipeId && state.recipes[slot.recipeId];
+    if (!r) continue;
+    const factor = (slot.persons || state.household) / (r.servings || 1);
+    for (const ing of r.ingredients || []) {
+      if (!ing.name) continue;
+      const [u, mult] = normUnit(ing.unit);
+      const q = ing.qty == null ? null : ing.qty * mult * factor;
+      const k = normName(ing.name) + "|" + (q == null ? "" : u);
+      let it = map.get(k);
+      if (!it) { it = { key:k, name: ing.name.trim(), unit:u, qty: null, aisle: ing.aisle || "Autres", from: new Set() }; map.set(k, it); }
+      if (q != null) it.qty = (it.qty || 0) + q;
+      it.from.add(r.name);
+    }
+  }
+  const items = [...map.values()].map(it => ({...it, qty: it.qty == null ? null : roundQty(it.qty, it.unit)}));
+  for (const ex of state.extras) items.push({ key: "x|" + ex.id, extraId: ex.id, name: ex.name, unit: "", qty: null, qtyText: ex.qty, aisle: ex.aisle || "Autres", from: new Set() });
+  const groups = AISLES.map(a => ({ aisle:a, items: items.filter(i => (AISLES.includes(i.aisle) ? i.aisle : "Autres") === a).sort((x,y) => x.name.localeCompare(y.name, "fr")) })).filter(g => g.items.length);
+  return { groups, count: items.length };
+}
+const qtyLabel = it => it.qtyText ? it.qtyText : fmtQty(it.qty, it.unit);
+
+/* ---------- Favori « Copier pour Toufette » ---------- */
+const BOOKMARKLET = "javascript:(function(){%20function%20isR(n){var%20t=n&&n[%22%40type%22];return%20t===%22Recipe%22||(Array.isArray(t)&&t.indexOf(%22Recipe%22)>=0);}%20function%20walk(n,d){if(!n||typeof%20n!==%22object%22||d>6)return%20null;if(Array.isArray(n)){for(var%20i=0;i<n.length;i++){var%20r=walk(n[i],d+1);if(r)return%20r;}return%20null;}if(isR(n))return%20n;var%20ks=[%22%40graph%22,%22mainEntity%22,%22mainEntityOfPage%22,%22itemListElement%22];for(var%20j=0;j<ks.length;j++){if(n[ks[j]]){var%20x=walk(n[ks[j]],d+1);if(x)return%20x;}}return%20null;}%20function%20txt(v){var%20e=document.createElement(%22div%22);e.innerHTML=String(v||%22%22);return%20(e.textContent||%22%22).replace(/%5Cs+/g,%22%20%22).trim();}%20var%20rec=null,ss=document.querySelectorAll('script[type=%22application/ld+json%22]');%20for(var%20i=0;i<ss.length&&!rec;i++){try{rec=walk(JSON.parse(ss[i].textContent),0);}catch(e){}}%20var%20out;%20if(rec){%20var%20steps=[];(function%20add(s){if(!s)return;if(typeof%20s===%22string%22){s.split(/%5Cn+/).forEach(function(x){x=txt(x);if(x)steps.push(x);});return;}if(Array.isArray(s)){s.forEach(add);return;}if(s.itemListElement){add(s.itemListElement);return;}if(s.text||s.name)steps.push(txt(s.text||s.name));})(rec.recipeInstructions);%20var%20y=Array.isArray(rec.recipeYield)?rec.recipeYield[0]:rec.recipeYield;%20out=%22Recette%20:%20%22+txt(rec.name)+%22%5CnSource%20:%20%22+location.href+%22%5CnPour%20:%20%22+txt(y)+%22%5CnIngr%C3%A9dients%20:%5Cn%22+(rec.recipeIngredient||[]).map(function(x){return%20%22-%20%22+txt(x);}).join(%22%5Cn%22)+%22%5Cn%C3%89tapes%20:%5Cn%22+steps.slice(0,20).join(%22%5Cn%22);%20}%20else%20{%20out=%22Source%20:%20%22+location.href+%22%5CnTitre%20:%20%22+document.title+%22%5Cn%22+(document.body.innerText||%22%22).slice(0,12000);%20}%20function%20ok(){alert(rec?%22Recette%20copi%C3%A9e%20pour%20Toufette%20!%5CnCollez-la%20dans%20%C2%AB%20Demander%20%C3%A0%20Toufette%20%C2%BB.%22:%22Pas%20de%20fiche%20recette%20d%C3%A9tect%C3%A9e%20:%20le%20texte%20de%20la%20page%20a%20%C3%A9t%C3%A9%20copi%C3%A9.%5CnCollez-le%20dans%20%C2%AB%20Demander%20%C3%A0%20Toufette%20%C2%BB.%22);}%20function%20fallback(){var%20t=document.createElement(%22textarea%22);t.value=out;t.style.position=%22fixed%22;t.style.top=%220%22;t.style.opacity=%220%22;document.body.appendChild(t);t.select();var%20r=false;try{r=document.execCommand(%22copy%22);}catch(e){}t.remove();if(r)ok();else%20prompt(%22Copiez%20ce%20texte%20(Ctrl+C)%20puis%20collez-le%20dans%20Toufette%20:%22,out);}%20if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(out).then(ok,fallback);}else%20fallback();%20})();";
+$("#bookmarklet").href = BOOKMARKLET;
+$("#bookmarklet").addEventListener("click", e => {
+  e.preventDefault();
+  alert("Ce bouton s'utilise depuis votre barre de favoris : glissez-le dedans, puis cliquez dessus quand vous êtes sur la page d'une recette.");
+});
+
+/* ---------- Pictos et liens de recette ---------- */
+const EMOJI_RULES = [
+  [/cr[eê]pe|galette|pancake|gaufre/, "🥞"], [/pizza/, "🍕"], [/burger|hamburger/, "🍔"], [/p[aâ]tes|spaghetti|tagliatelle|lasagne|macaroni|penne|ravioli|gnocchi|carbonara|bolognaise/, "🍝"],
+  [/soupe|velout[eé]|potage|bouillon|minestrone|pot[- ]au[- ]feu/, "🍲"], [/salade|taboul[eé]|bowl/, "🥗"], [/quiche|tarte sal|tourte|feuillet/, "🥧"],
+  [/g[aâ]teau|cake|moelleux|fondant|brownie|cookie|muffin|madeleine|quatre[- ]quarts|clafoutis|far/, "🍰"], [/tarte/, "🥧"], [/cr[eè]me|mousse|flan|panna|riz au lait/, "🍮"],
+  [/compote|pomme|poire/, "🍎"], [/banane/, "🍌"], [/fraise|framboise|fruit/, "🍓"], [/yaourt|fromage blanc/, "🥛"], [/pain|tartine|brioche|sandwich|croque/, "🥪"],
+  [/poisson|saumon|cabillaud|thon|colin|merlu|truite|sardine|maquereau/, "🐟"], [/crevette|gambas|moule|fruits de mer/, "🦐"],
+  [/poulet|volaille|dinde|canard|pintade/, "🍗"], [/boeuf|bœuf|steak|bavette|entrec[oô]te|bourguignon|b[oœ]uf/, "🥩"], [/porc|jambon|lardon|saucisse|chipolata|r[oô]ti/, "🥓"],
+  [/agneau|gigot/, "🍖"], [/oeuf|œuf|omelette/, "🍳"], [/riz|risotto|paella|curry/, "🍛"], [/chili|tacos|fajita|burrito/, "🌮"], [/sushi|maki/, "🍣"], [/nouille|ramen|wok/, "🍜"],
+  [/raclette|fondue|tartiflette|gratin|fromage/, "🧀"], [/pomme de terre|patate|frite|pur[eé]e|parmentier|hachis/, "🥔"], [/l[eé]gume|ratatouille|courgette|carotte|poireau|chou/, "🥕"],
+  [/lentille|pois chiche|haricot/, "🫘"], [/chocolat/, "🍫"]
+];
+function recipeEmoji(r){
+  if (r && r.emoji) return r.emoji;
+  const n = normName(r && r.name).normalize("NFC");
+  for (const [re, e] of EMOJI_RULES) if (re.test(n)) return e;
+  return "🍽️";
+}
+function recipeHref(r){
+  if (r.url) return r.url;
+  return "https://www.google.com/search?q=" + encodeURIComponent("recette " + r.name + " marmiton");
+}
+
+/* ---------- Rendu ---------- */
+let currentTab = "planning";
+function render(){
+  $("#weekStart").value = state.weekStart;
+  $("#thisWeek").hidden = state.weekStart === isoDate(mondayOf(new Date()));
+  $("#household").value = state.household;
+  const start = parseISO(state.weekStart), end = new Date(start); end.setDate(end.getDate()+6);
+  $("#weekline").textContent = `Du ${fmtLong(start)} au ${fmtLong(end)}`;
+  $("#nRecipes").textContent = Object.keys(state.recipes).length;
+  renderWeek(); renderRecipes(); renderShopping();
+}
+
+function renderWeek(){
+  const box = $("#week"); box.textContent = "";
+  const start = parseISO(state.weekStart), todayIso = isoDate(new Date());
+  DAYS.forEach((dn, i) => {
+    const d = new Date(start); d.setDate(d.getDate()+i);
+    const day = el("div", {class: "day" + (isoDate(d) === todayIso ? " today" : "")},
+      el("div", {class:"dayhead"}, el("div", {class:"dayname", text: dn}), el("div", {class:"daydate", text: fmtDay(d)})));
+    for (const [mk, ml] of MEALS) {
+      const key = i + "-" + mk, s = state.plan[key], r = s && s.recipeId && state.recipes[s.recipeId];
+      const isBusy = busy.has(key);
+      const btn = el("button", {class: "slot" + (!r && !(s && s.note) ? " empty" : "") + (isBusy ? " busy" : ""), type:"button", "aria-label": `${dn} ${ml}`, onclick: () => openSlot(i, mk)},
+        el("span", {class:"meal", text: ml}));
+      if (isBusy) btn.append(el("span", {class:"add", text:"Toufette cherche…"}));
+      else {
+        if (r) btn.append(el("span", {class:"emo", "aria-hidden":"true", text: recipeEmoji(r)}), el("span", {class:"rname", text: r.name}),
+          el("span", {class:"kcal", text: r.kcal ? `≈ ${fmtKcal(r.kcal)} kcal/pers.` : "kcal à calculer"}));
+        if (s && s.note) btn.append(el("span", {class:"note", text: s.note}));
+        if (!r && !(s && s.note)) btn.append(el("span", {class:"add", text:"+ Ajouter"}));
+      }
+      const wrap = el("div", {class:"slotwrap"}, btn);
+      if (r && !isBusy) {
+        wrap.append(el("a", {class:"rlink", href: recipeHref(r), target:"_blank", rel:"noopener", title: r.url ? "Ouvrir la recette" : "Chercher cette recette sur le web"},
+          el("span", {class:"long", text: r.url ? "Recette ↗" : "Chercher ↗"}), el("span", {class:"short", text: "↗"})));
+        const n = s.persons || state.household;
+        wrap.append(el("div", {class:"pstep", title:"Nombre de personnes pour ce repas"},
+          el("button", {type:"button", "aria-label": `Une personne de moins, ${dn} ${ml}`, onclick: () => setPersons(key, n - 1)}, "−"),
+          el("span", {"aria-label": `${n} personnes`, text: n + " 👤"}),
+          el("button", {type:"button", "aria-label": `Une personne de plus, ${dn} ${ml}`, onclick: () => setPersons(key, n + 1)}, "+")));
+      }
+      if (aiOn) wrap.append(el("button", {class:"propose", type:"button", title:"Toufette propose une recette", "aria-label": `Proposer une recette pour ${dn} ${ml}`, disabled: busy.size > 0, onclick: () => proposeOne(key)}, "✦"));
+      day.append(wrap);
+    }
+    box.append(day);
+  });
+}
+
+function setPersons(key, n){
+  const s = state.plan[key]; if (!s) return;
+  s.persons = Math.max(1, Math.min(30, n));
+  commit();
+}
+const fmtKcal = k => Math.round(k).toLocaleString("fr-FR");
+
+function renderRecipes(){
+  const box = $("#recipes"); box.textContent = "";
+  const q = normName($("#rsearch").value);
+  const list = Object.values(state.recipes).filter(r => !q || normName(r.name).includes(q)).sort((a,b) => a.name.localeCompare(b.name, "fr"));
+  if (!Object.keys(state.recipes).length) {
+    box.append(el("div", {class:"empty-state"}, el("p", {text:"Aucune recette pour l'instant. Ajoutez-en une ici, ou directement depuis un repas du planning."}),
+      el("button", {class:"btn primary", onclick: () => openRecipe(null)}, "Ajouter une recette")));
+    return;
+  }
+  if (!list.length) { box.append(el("p", {class:"hint", text:"Aucune recette ne correspond à cette recherche."})); return; }
+  const used = new Set(Object.values(state.plan).map(s => s.recipeId));
+  const grid = el("div", {class:"recipes"});
+  for (const r of list) {
+    const n = Object.values(state.plan).filter(s => s.recipeId === r.id).length;
+    grid.append(el("div", {class:"rcard"},
+      el("h3", {text: recipeEmoji(r) + " " + r.name}),
+      el("div", {class:"meta"}, `Pour ${r.servings} pers. · ${(r.ingredients||[]).length} ingrédients${r.kcal ? ` · ≈ ${fmtKcal(r.kcal)} kcal / pers.` : ""} `,
+        r.estimated ? el("span", {class:"tag warn", title:"Recette proposée par Toufette à partir du nom : vérifiez les quantités", text:"à vérifier"}) : null,
+        used.has(r.id) ? el("span", {class:"tag", text: `${n} repas cette semaine`}) : null),
+      el("div", {class:"ings", text: (r.ingredients||[]).map(x => x.name).join(", ")}),
+      el("div", {class:"actions"},
+        el("button", {class:"btn small", onclick: () => openRecipe(r.id)}, "Modifier"),
+        el("a", {class:"btn small", href: recipeHref(r), target:"_blank", rel:"noopener"}, r.url ? "Voir la recette" : "Chercher la recette"))));
+  }
+  box.append(grid);
+}
+
+function renderShopping(){
+  const { groups, count } = buildShopping();
+  $("#nItems").textContent = count;
+  const meals = Object.values(state.plan).filter(s => s.recipeId && state.recipes[s.recipeId]).length;
+  $("#coursesHint").textContent = meals ? `Calculée à partir de ${meals} repas planifiés, ajustée au nombre de personnes.` : "";
+  const box = $("#shopping"); box.textContent = "";
+  if (!count) { box.append(el("div", {class:"empty-state"}, el("p", {text:"La liste se remplit toute seule quand vous ajoutez des recettes au planning."}))); return; }
+  const cols = el("div", {class:"aisles"});
+  for (const g of groups) {
+    const sec = el("div", {class:"aisle"}, el("h3", {text: g.aisle}));
+    for (const it of g.items) {
+      const done = !!state.checked[it.key];
+      const id = "c_" + uid();
+      const row = el("div", {class: "item" + (done ? " done" : "")},
+        el("input", {type:"checkbox", id, checked: done, onchange: e => { if (e.target.checked) state.checked[it.key] = true; else delete state.checked[it.key]; commit(); }}),
+        el("label", {class:"iname", for: id}, it.name, it.from.size ? el("small", {text: [...it.from].join(", ")}) : null),
+        el("span", {class:"iqty", text: qtyLabel(it)}),
+        it.extraId ? el("button", {class:"rm", "aria-label":"Retirer " + it.name, onclick: () => { state.extras = state.extras.filter(x => x.id !== it.extraId); delete state.checked[it.key]; commit(); }}, "✕") : null);
+      sec.append(row);
+    }
+    cols.append(sec);
+  }
+  box.append(cols);
+}
+
+/* ---------- Onglets & réglages ---------- */
+document.querySelectorAll("nav.tabs button").forEach(b => b.addEventListener("click", () => {
+  currentTab = b.dataset.tab;
+  document.querySelectorAll("nav.tabs button").forEach(x => x.setAttribute("aria-selected", x === b));
+  for (const t of ["planning","recettes","courses"]) $("#tab-" + t).hidden = t !== currentTab;
+}));
+// Chaque semaine a son propre planning, sa liste cochée et ses articles ajoutés.
+// La semaine affichée vit dans state.plan / checked / extras ; les autres sont rangées dans state.weeks.
+function switchWeek(iso){
+  if (!iso || iso === state.weekStart || busy.size) { render(); return; }
+  state.weeks = state.weeks || {};
+  const cur = { plan: state.plan, checked: state.checked, extras: state.extras };
+  if (Object.keys(cur.plan).length || cur.extras.length) state.weeks[state.weekStart] = cur;
+  else delete state.weeks[state.weekStart];
+  const w = state.weeks[iso] || {};
+  state.plan = w.plan || {}; state.checked = w.checked || {}; state.extras = w.extras || [];
+  delete state.weeks[iso];
+  state.weekStart = iso;
+  setPlanStatus("");
+  commit();
+}
+function shiftWeek(n){ const d = parseISO(state.weekStart); d.setDate(d.getDate() + 7 * n); switchWeek(isoDate(d)); }
+$("#weekStart").addEventListener("change", e => { if (!e.target.value) return; switchWeek(isoDate(mondayOf(parseISO(e.target.value)))); });
+$("#prevWeek").addEventListener("click", () => shiftWeek(-1));
+$("#nextWeek").addEventListener("click", () => shiftWeek(1));
+$("#thisWeek").addEventListener("click", () => switchWeek(isoDate(mondayOf(new Date()))));
+$("#household").addEventListener("change", e => { const n = Math.max(1, Math.min(30, parseInt(e.target.value) || 2)); state.household = n; commit(); });
+$("#rsearch").addEventListener("input", renderRecipes);
+$("#clearWeek").addEventListener("click", () => { if (confirm("Vider tous les repas de la semaine ? Vos recettes sont conservées.")) { state.plan = {}; state.checked = {}; commit(); } });
+$("#newRecipe").addEventListener("click", () => openRecipe(null));
+$("#uncheckAll").addEventListener("click", () => { state.checked = {}; commit(); });
+
+const exAisle = $("#exAisle"); AISLES.forEach(a => exAisle.append(el("option", {value:a, text:a}))); exAisle.value = "Autres";
+$("#extraForm").addEventListener("submit", e => {
+  e.preventDefault();
+  const name = $("#exName").value.trim(); if (!name) return;
+  state.extras.push({ id: uid(), name, qty: $("#exQty").value.trim(), aisle: exAisle.value });
+  $("#exName").value = ""; $("#exQty").value = ""; commit(); $("#exName").focus();
+});
+
+function listAsText(){
+  const { groups } = buildShopping();
+  return groups.map(g => g.aisle.toUpperCase() + "\n" + g.items.filter(i => !state.checked[i.key]).map(i => "- " + i.name + (qtyLabel(i) ? " : " + qtyLabel(i).replace(/^× /, "") : "")).join("\n")).join("\n\n");
+}
+$("#copyList").addEventListener("click", async () => {
+  const txt = listAsText(), ta = $("#copyFallback");
+  try { await navigator.clipboard.writeText(txt); $("#copyList").textContent = "Liste copiée"; setTimeout(() => $("#copyList").textContent = "Copier la liste", 1800); ta.hidden = true; }
+  catch(e) { ta.hidden = false; ta.value = txt; ta.focus(); ta.select(); }
+});
+
+/* ---------- Dialogue repas ---------- */
+let slotCtx = null;
+function openSlot(dayIdx, meal){
+  const key = dayIdx + "-" + meal, s = state.plan[key] || {};
+  slotCtx = { key, recipeId: s.recipeId && state.recipes[s.recipeId] ? s.recipeId : null, persons: s.persons || state.household, tried: [...(s.tried || [])] };
+  $("#slotTitle").textContent = `${DAYS[dayIdx]} – ${mealLabel(meal).toLowerCase()}`;
+  $("#slotStatus").textContent = ""; $("#slotStatus").classList.remove("err");
+  $("#slotNote").value = s.note || "";
+  $("#slotSearch").value = "";
+  $("#pVal").textContent = slotCtx.persons;
+  renderPick();
+  $("#slotDlg").showModal();
+  const sel = $("#slotPick .pick[aria-checked=true]");
+  if (sel) sel.scrollIntoView({ block: "nearest" });
+}
+function renderPick(){
+  renderChosen();
+  const box = $("#slotPick"); box.textContent = "";
+  const q = normName($("#slotSearch").value);
+  const list = Object.values(state.recipes).filter(r => !q || normName(r.name).includes(q)).sort((a,b) => a.name.localeCompare(b.name, "fr"));
+  if (!list.length) { box.append(el("p", {class:"hint", style:"margin:8px", text: Object.keys(state.recipes).length ? "Aucune recette ne correspond." : "Pas encore de recette : créez-en une avec « Nouvelle recette »."})); return; }
+  for (const r of list) {
+    const on = r.id === slotCtx.recipeId;
+    const meta = [r.kcal ? `≈ ${fmtKcal(r.kcal)} kcal/pers.` : "", `recette pour ${r.servings} pers.`].filter(Boolean).join(" · ");
+    box.append(el("button", {type:"button", class:"pick", role:"radio", "aria-checked": on ? "true" : "false", title:"Double-clic pour choisir et enregistrer",
+        onclick: () => { slotCtx.recipeId = r.id; renderPick(); },
+        ondblclick: () => { slotCtx.recipeId = r.id; $("#slotSave").click(); }},
+      el("span", {class:"radio", "aria-hidden":"true"}, "✓"),
+      el("span", {class:"pemo", "aria-hidden":"true", text: recipeEmoji(r)}),
+      el("span", {class:"pname"}, r.name, el("span", {class:"pmeta", text: meta}))));
+  }
+}
+function renderChosen(){
+  const box = $("#slotChosen"); box.textContent = "";
+  const r = slotCtx.recipeId && state.recipes[slotCtx.recipeId];
+  box.classList.toggle("none", !r);
+  if (!r) { box.append(el("span", {text:"Aucune recette choisie : sélectionnez-en une dans la liste ci-dessous."})); return; }
+  box.append(
+    el("span", {class:"cemo", "aria-hidden":"true", text: recipeEmoji(r)}),
+    el("div", {class:"cbody"},
+      el("div", {class:"clabel", text:"Recette choisie"}),
+      el("div", {class:"cname", text: r.name}),
+      el("div", {class:"cmeta", text: r.kcal ? `≈ ${fmtKcal(r.kcal)} kcal/pers.` : ""})),
+    el("button", {type:"button", class:"btn small", onclick: () => { slotCtx.recipeId = null; renderPick(); }}, "Retirer"));
+}
+$("#slotSearch").addEventListener("input", renderPick);
+$("#pMinus").addEventListener("click", () => { slotCtx.persons = Math.max(1, slotCtx.persons - 1); $("#pVal").textContent = slotCtx.persons; });
+$("#pPlus").addEventListener("click", () => { slotCtx.persons = Math.min(30, slotCtx.persons + 1); $("#pVal").textContent = slotCtx.persons; });
+$("#slotCancel").addEventListener("click", () => $("#slotDlg").close());
+$("#slotClear").addEventListener("click", () => { delete state.plan[slotCtx.key]; commit(); $("#slotDlg").close(); });
+$("#slotSave").addEventListener("click", () => {
+  const note = $("#slotNote").value.trim();
+  if (!slotCtx.recipeId && !note) delete state.plan[slotCtx.key];
+  else state.plan[slotCtx.key] = { recipeId: slotCtx.recipeId, persons: slotCtx.persons, note, tried: slotCtx.tried };
+  commit(); $("#slotDlg").close();
+});
+$("#slotNew").addEventListener("click", () => { $("#slotDlg").close(); openRecipe(null, true); });
+
+/* ---------- Dialogue recette ---------- */
+let recCtx = null;
+const unitsDl = $("#units"); UNITS.forEach(u => unitsDl.append(el("option", {value:u})));
+function ingRow(ing = {}){
+  const sel = el("select", {"aria-label":"Rayon"}); AISLES.forEach(a => sel.append(el("option", {value:a, text:a})));
+  sel.value = AISLES.includes(ing.aisle) ? ing.aisle : "Autres";
+  const tr = el("tr", {},
+    el("td", {class:"q"}, el("input", {type:"text", inputmode:"decimal", "aria-label":"Quantité", value: ing.qty ?? ""})),
+    el("td", {class:"u"}, el("input", {type:"text", list:"units", "aria-label":"Unité", value: ing.unit ?? ""})),
+    el("td", {}, el("input", {type:"text", "aria-label":"Ingrédient", value: ing.name ?? ""})),
+    el("td", {class:"a"}, sel),
+    el("td", {class:"x"}, el("button", {type:"button", "aria-label":"Retirer l'ingrédient", onclick: e => e.target.closest("tr").remove()}, "✕")));
+  $("#ingBody").append(tr);
+  return tr;
+}
+function fillRecipeForm(r){
+  $("#rName").value = r.name || ""; $("#rEmoji").value = r.emoji || ""; $("#rKcal").value = r.kcal || ""; $("#kcalStatus").textContent = ""; $("#rServ").value = r.servings || 4; $("#rUrl").value = r.url || ""; $("#rSteps").value = r.steps || "";
+  $("#ingBody").textContent = "";
+  (r.ingredients && r.ingredients.length ? r.ingredients : [{}, {}, {}]).forEach(ingRow);
+}
+function openRecipe(id, assignToSlot = false){
+  const r = id ? state.recipes[id] : null;
+  recCtx = { id, assignToSlot, estimated: r ? !!r.estimated : false };
+  $("#recTitle").textContent = r ? "Modifier la recette" : "Nouvelle recette";
+  $("#recDelete").hidden = !r;
+  $("#importText").value = ""; setImportStatus("");
+  fillRecipeForm(r || { servings: state.household });
+  $("#recDlg").showModal();
+  (r ? $("#rName") : (sample ? $("#importText") : $("#rName"))).focus();
+}
+$("#addIng").addEventListener("click", () => ingRow().querySelector("input").focus());
+$("#recCancel").addEventListener("click", () => { abortImport(); $("#recDlg").close(); });
+$("#recDelete").addEventListener("click", () => {
+  if (!confirm("Supprimer cette recette ? Elle sera aussi retirée du planning.")) return;
+  for (const [k, s] of Object.entries(state.plan)) if (s.recipeId === recCtx.id) { if (s.note) s.recipeId = null; else delete state.plan[k]; }
+  delete state.recipes[recCtx.id]; commit(); $("#recDlg").close();
+});
+$("#recSave").addEventListener("click", () => {
+  const name = $("#rName").value.trim();
+  if (!name) { $("#rName").focus(); $("#rName").setCustomValidity("Donnez un nom à la recette"); $("#rName").reportValidity(); return; }
+  const ingredients = [...$("#ingBody").querySelectorAll("tr")].map(tr => {
+    const [q, u, n] = tr.querySelectorAll("input");
+    return { qty: parseQty(q.value), unit: u.value.trim(), name: n.value.trim(), aisle: tr.querySelector("select").value };
+  }).filter(x => x.name);
+  const id = recCtx.id || uid();
+  state.recipes[id] = { id, name, emoji: $("#rEmoji").value.trim(), kcal: Math.round(parseFloat($("#rKcal").value)) || null, servings: Math.max(1, parseInt($("#rServ").value) || 4), url: $("#rUrl").value.trim(), steps: $("#rSteps").value.trim(), ingredients, estimated: recCtx.estimated };
+  if (recCtx.assignToSlot && slotCtx) {
+    state.plan[slotCtx.key] = { recipeId: id, persons: slotCtx.persons, note: $("#slotNote").value.trim(), tried: slotCtx.tried };
+  }
+  abortImport(); commit(); $("#recDlg").close();
+});
+$("#rName").addEventListener("input", e => e.target.setCustomValidity(""));
+
+/* ---------- Import avec Claude ---------- */
+let importCtl = null;
+function setImportStatus(t, err = false){ const s = $("#importStatus"); s.textContent = t; s.classList.toggle("err", err); }
+function abortImport(){ if (importCtl) { importCtl.abort(); importCtl = null; } }
+$("#importStop").addEventListener("click", abortImport);
+$("#importBtn").addEventListener("click", async () => {
+  const input = $("#importText").value.trim();
+  if (!input) { setImportStatus("Collez un lien ou un texte de recette, ou tapez un nom de plat.", true); return; }
+  if (!(await getSample())) { setImportStatus(NO_CLAUDE, true); return; }
+  const onlyLink = /^https?:\/\/\S+$/i.test(input);
+  const prompt = `Tu aides à remplir un planificateur de repas en français. Voici ce que la personne a fourni (texte de recette collé, lien vers une recette, ou simple nom de plat) :
+
+"""
+${input.slice(0, 20000)}
+"""
+${onlyLink ? `C'est un lien : utilise l'outil web_fetch pour lire cette page, puis extrais-en la recette telle qu'elle y figure. Si la page est illisible, applique la règle du lien sans contenu.\n` : ""}
+
+Réponds UNIQUEMENT avec un objet JSON de cette forme :
+{"name": "Nom du plat", "emoji": "🥧", "kcal": 520, "servings": 4, "estimated": false, "url": "", "ingredients": [{"qty": 200, "unit": "g", "name": "farine", "aisle": "Épicerie sucrée"}], "steps": "Étapes courtes, une par ligne"}
+
+Règles :
+- Si le texte contient la recette (liste d'ingrédients), reprends exactement ses ingrédients, quantités et nombre de personnes ; "estimated": false.
+- Si le texte contient une ligne « Source : https://… », recopie cette adresse dans "url".
+- Si c'est seulement un nom de plat, ou un lien que tu n'as pas réussi à lire : déduis le plat à partir du nom ou des mots de l'URL et propose une version classique et réaliste ; "estimated": true. Si c'est un lien, recopie-le dans "url".
+- "unit" parmi : g, kg, ml, cl, l, pièce, c. à s., c. à c., pincée, gousse, botte, tranche, boîte, sachet, paquet, pot. Convertis les unités américaines en métrique.
+- "qty" est un nombre (pas de texte), ou null pour « sel, poivre, à volonté ».
+- "name" : nom simple de l'ingrédient au singulier et en minuscules, sans la quantité ni la préparation (ex. "oignon", pas "2 oignons émincés").
+- "aisle" parmi : ${AISLES.join(", ")}.
+- "steps" : 3 à 8 lignes courtes maximum.
+- "emoji" : UN seul emoji alimentaire qui représente le plat.
+- "kcal" : estimation des calories pour UNE portion (une personne), nombre entier calculé d'après les ingrédients et les quantités.`;
+  abortImport();
+  importCtl = new AbortController();
+  $("#importBtn").disabled = true; $("#importStop").hidden = false;
+  setImportStatus(onlyLink ? "Toufette ouvre la page de la recette…" : "Toufette lit la recette…");
+  try {
+    const r = await sample.json(prompt, { signal: importCtl.signal, webFetch: onlyLink });
+    if (!r || typeof r !== "object" || !Array.isArray(r.ingredients)) throw { code: "invalid_json" };
+    const ingredients = r.ingredients.filter(x => x && x.name).map(x => ({ qty: parseQty(x.qty), unit: String(x.unit || ""), name: String(x.name), aisle: AISLES.includes(x.aisle) ? x.aisle : "Autres" }));
+    fillRecipeForm({
+      name: String(r.name || $("#rName").value || ""),
+      emoji: String(r.emoji || "").slice(0, 8),
+      kcal: Math.round(parseFloat(r.kcal)) || null,
+      servings: parseInt(r.servings) || 4,
+      url: $("#rUrl").value || (onlyLink ? input : String(r.url || "")),
+      steps: String(r.steps || ""),
+      ingredients
+    });
+    recCtx.estimated = !!r.estimated;
+    setImportStatus(r.estimated ? (onlyLink ? "Toufette n'a pas pu lire cette page : voici une version classique, à vérifier. Le favori « Copier pour Toufette » donnera la vraie recette." : "Recette proposée par Toufette, pas celle du site : vérifiez les quantités avant d'enregistrer.") : `${ingredients.length} ingrédients extraits. Vérifiez puis enregistrez.`, !!r.estimated);
+  } catch(e) {
+    const c = e && e.code;
+    if (c === "cancelled") setImportStatus("Arrêté.");
+    else if (c === "no_key") setImportStatus(errText(e) + " Vous pouvez aussi remplir la recette à la main.", true);
+    else if (c === "rate_limited") setImportStatus("Trop de demandes pour le moment. Réessayez dans un instant.", true);
+    else if (c === "invalid_json" || c === "empty_completion") setImportStatus("La réponse n'a pas pu être lue. Réessayez, ou collez un texte plus court.", true);
+    else if (c === "prompt_too_large") setImportStatus("Texte trop long : ne collez que les ingrédients.", true);
+    else setImportStatus("Le remplissage a échoué. Réessayez.", true);
+  } finally {
+    importCtl = null; $("#importBtn").disabled = false; $("#importStop").hidden = true;
+  }
+});
+
+/* ---------- Propositions de Claude ---------- */
+const busy = new Set();
+let proposeCtl = null;
+const mealLabel = mk => (MEALS.find(m => m[0] === mk) || [mk, mk])[1];
+const slotLabel = key => { const [d, mk] = key.split("-"); return `${DAYS[+d]} ${mealLabel(mk).toLowerCase()}`; };
+function setPlanStatus(t, err = false){ const s = $("#planStatus"); s.hidden = !t; $("#planHint").hidden = !!t; s.textContent = t; s.classList.toggle("err", err); }
+function errText(e){
+  const c = e && e.code;
+  if (c === "no_key") return "Ajoutez votre clé d'API dans « Réglages et sauvegarde » pour que Toufette puisse travailler.";
+  if (c === "rate_limited") return "Trop de demandes pour le moment. Réessayez dans un instant.";
+  return "La proposition a échoué. Réessayez.";
+}
+
+// Plats prévus dans les semaines voisines (3 avant, 3 après) : à ne pas reproposer.
+const NEAR_WEEKS = 3;
+function nearbyDishes(){
+  const cur = parseISO(state.weekStart).getTime(), day = 86400000, ids = new Set(), names = new Map();
+  for (const [iso, w] of Object.entries(state.weeks || {})) {
+    const diff = Math.round((parseISO(iso).getTime() - cur) / (7 * day));
+    if (diff === 0 || Math.abs(diff) > NEAR_WEEKS) continue;
+    for (const [k, sl] of Object.entries(w.plan || {})) {
+      const r = sl.recipeId && state.recipes[sl.recipeId];
+      if (!r) continue;
+      ids.add(r.id);
+      const meal = k.split("-")[1];
+      if (!names.has(r.name)) names.set(r.name, { meal, when: diff < 0 ? `il y a ${-diff} sem.` : `dans ${diff} sem.` });
+    }
+  }
+  return { ids, names };
+}
+
+// « Poulet basquaise » = « poulet  Basquaise » = « Poulet basquaisé » : on compare sans accents, casse ni ponctuation.
+const dishKey = n => String(n || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+
+// Plats qu'une nouvelle proposition ne doit JAMAIS reprendre :
+// tout ce qui est au menu de la semaine, des semaines voisines, et ce qui a déjà été proposé pour ces cases.
+function forbiddenFor(keys, extraNames = []){
+  const m = new Map();
+  const add = n => { const k = dishKey(n); if (k && !m.has(k)) m.set(k, String(n)); };
+  for (const sl of Object.values(state.plan)) { const r = sl.recipeId && state.recipes[sl.recipeId]; if (r) add(r.name); }
+  for (const n of nearbyDishes().names.keys()) add(n);
+  for (const k of keys) for (const n of ((state.plan[k] || {}).tried || [])) add(n);
+  extraNames.forEach(add);
+  return m;
+}
+
+function buildProposePrompt(keys, prefs, reuse, labels = {}, exclude = keys, forbidden = new Map()){
+  const start = parseISO(state.weekStart);
+  const month = start.toLocaleDateString("fr-FR", {month:"long"});
+  const planned = Object.entries(state.plan).filter(([k, s]) => !exclude.includes(k) && s.recipeId && state.recipes[s.recipeId])
+    .map(([k, s]) => `${slotLabel(k)} : ${state.recipes[s.recipeId].name}`);
+  const near = nearbyDishes();
+  // la bibliothèque proposée à la réutilisation exclut les plats servis récemment
+  const lib = Object.values(state.recipes).filter(r => !near.ids.has(r.id) && !forbidden.has(dishKey(r.name))).slice(0, 120).map(r => `${r.id} = ${r.name}`);
+  const forbidList = [...forbidden.values()].slice(0, 150);
+  return `Tu composes des menus pour une famille française. Semaine du ${fmtLong(start)} (mois de ${month} : privilégie les produits de saison). ${state.household} personne(s) par défaut.
+${prefs ? `Envies et contraintes : ${prefs}\n` : ""}
+Déjà prévu cette semaine (ne pas répéter, varier les protéines et les féculents) :
+${planned.length ? planned.join("\n") : "rien"}
+${forbidList.length ? `\nPLATS INTERDITS — déjà au menu (cette semaine ou les semaines voisines) ou déjà proposés pour ces créneaux. Ne propose AUCUN de ces plats, ni une variante trop proche (même plat principal avec un autre accompagnement, même goûter) : chaque proposition doit être un plat nouveau.\n${forbidList.join("\n")}\n` : ""}
+${reuse && lib.length ? `Recettes déjà enregistrées (tu peux en réutiliser si elles conviennent, sans en abuser) :\n${lib.join("\n")}\n` : ""}
+Propose un repas pour chacun de ces créneaux (code entre crochets) :
+${keys.map(k => `[${k}] ${labels[k] || slotLabel(k)}`).join("\n")}
+
+Le goûter est une collation simple (fait maison ou à acheter : gâteau, crêpes, fruits, tartines, compote, yaourt…). Midi et soir sont des plats complets ; le soir plutôt léger ou rapide en semaine.
+
+Format de réponse : UNE ligne JSON par créneau, rien d'autre (pas de texte, pas de balises), dans l'ordre donné.
+Pour réutiliser une recette enregistrée : {"slot":"0-midi","recipeId":"id"}
+Pour une nouvelle recette : {"slot":"0-midi","name":"Nom du plat","emoji":"🍲","kcal":520,"servings":4,"ingredients":[{"qty":200,"unit":"g","name":"farine","aisle":"Épicerie sucrée"}],"steps":"3 à 6 étapes courtes, séparées par \\n"}
+Règles pour les ingrédients : "unit" parmi g, kg, ml, cl, l, pièce, c. à s., c. à c., pincée, gousse, botte, tranche, boîte, sachet, paquet, pot ; "qty" est un nombre ou null (sel, poivre) ; "name" au singulier, en minuscules, sans préparation ; "aisle" parmi : ${AISLES.join(", ")}. Quantités réalistes pour "servings" personnes. "emoji" : UN seul emoji alimentaire qui représente le plat. "kcal" : estimation des calories pour UNE portion (une personne), nombre entier cohérent avec les ingrédients.`;
+}
+
+function applyProposal(o, keys){
+  if (!o || typeof o !== "object") return null;
+  const key = String(o.slot || "");
+  if (!keys.includes(key)) return null;
+  let rid = null;
+  if (o.recipeId && state.recipes[o.recipeId]) rid = String(o.recipeId);
+  else if (o.name && Array.isArray(o.ingredients)) {
+    rid = uid();
+    state.recipes[rid] = { id: rid, name: String(o.name), emoji: String(o.emoji || "").slice(0, 8), kcal: Math.round(parseFloat(o.kcal)) || null, servings: Math.max(1, parseInt(o.servings) || 4), url: "", steps: String(o.steps || ""), estimated: true,
+      ingredients: o.ingredients.filter(x => x && x.name).map(x => ({ qty: parseQty(x.qty), unit: String(x.unit || ""), name: String(x.name), aisle: AISLES.includes(x.aisle) ? x.aisle : "Autres" })) };
+  } else return null;
+  return { key, rid };
+}
+
+async function runProposal(keys, { prefs = state.prefs, reuse = true, onApplied, signal, labels, exclude, forbidExtra = [] } = {}){
+  const forbidden = forbiddenFor(exclude || keys, forbidExtra);
+  const recentIds = nearbyDishes().ids;
+  const done = new Set();
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const todo = keys.filter(k => !done.has(k));
+    if (!todo.length || (signal && signal.aborted)) break;
+    const prompt = buildProposePrompt(todo, prefs, reuse, labels, exclude || keys, forbidden);
+    let pendingLine = "";
+    const eat = line => {
+      line = line.trim().replace(/^```(json)?|```$/g, "").trim();
+      if (!line.startsWith("{")) return;
+      let o; try { o = JSON.parse(line); } catch(e) { return; }
+      if (!o || !todo.includes(String(o.slot || "")) || done.has(String(o.slot))) return;
+      const reused = o.recipeId && state.recipes[o.recipeId];
+      const name = reused ? reused.name : o.name;
+      const k = dishKey(name);
+      if (!k || forbidden.has(k) || (reused && recentIds.has(reused.id))) { if (k && !forbidden.has(k)) forbidden.set(k, String(name)); return; }  // déjà vu : refusé
+      const res = applyProposal(o, todo);
+      if (!res) return;
+      forbidden.set(k, String(name));            // pas deux fois le même plat dans une même série
+      done.add(res.key);
+      onApplied({ ...res, name: String(name) });
+    };
+    await sample(prompt, { signal, cache: false, onText: ({ delta }) => {
+      const lines = (pendingLine + delta).split("\n"); pendingLine = lines.pop(); lines.forEach(eat);
+    }});
+    eat(pendingLine);
+  }
+  return done;
+}
+const addTried = (list, ...names) => { let l = [...(list || [])]; for (const name of names.filter(Boolean)) l = [...l.filter(n => dishKey(n) !== dishKey(name)), name]; return l.slice(-40); };
+const slotDishName = sl => { const r = sl && sl.recipeId && state.recipes[sl.recipeId]; return r ? r.name : ""; };
+
+function startBusy(keys){
+  keys.forEach(k => busy.add(k));
+  $("#proposeWeek").disabled = true; $("#stopPropose").hidden = false;
+  proposeCtl = new AbortController();
+  renderWeek();
+  return proposeCtl.signal;
+}
+function endBusy(){
+  busy.clear(); proposeCtl = null;
+  $("#proposeWeek").disabled = false; $("#stopPropose").hidden = true;
+  render();
+}
+$("#stopPropose").addEventListener("click", () => proposeCtl && proposeCtl.abort());
+
+async function proposeOne(key){
+  if (busy.size) return;
+  if (!(await getSample())) { setPlanStatus(NO_CLAUDE, true); return; }
+  const signal = startBusy([key]);
+  setPlanStatus(`Toufette cherche une idée pour ${slotLabel(key)}…`);
+  try {
+    const done = await runProposal([key], { signal, onApplied: ({ key, rid, name }) => {
+      const prev = state.plan[key] || {};
+      state.plan[key] = { recipeId: rid, persons: prev.persons || state.household, note: "", tried: addTried(prev.tried, slotDishName(prev), name) };
+      busy.delete(key); persist(); render();
+    }});
+    setPlanStatus(done.size ? "" : "Aucune proposition exploitable. Réessayez.", !done.size);
+  } catch(e) { setPlanStatus(e && e.code === "cancelled" ? "" : errText(e), !(e && e.code === "cancelled")); }
+  endBusy();
+}
+
+// Dans le dialogue d'un repas
+$("#slotPropose").addEventListener("click", async () => {
+  if (!slotCtx) return;
+  const st = $("#slotStatus"), btn = $("#slotPropose");
+  if (!(await getSample())) { st.textContent = NO_CLAUDE; st.classList.add("err"); return; }
+  btn.disabled = true; st.classList.remove("err"); st.textContent = "Toufette cherche une idée…";
+  const key = slotCtx.key;
+  try {
+    const cur = slotCtx.recipeId && state.recipes[slotCtx.recipeId];
+    const done = await runProposal([key], { forbidExtra: [...slotCtx.tried, ...(cur ? [cur.name] : [])], onApplied: ({ rid, name }) => {
+      slotCtx.tried = addTried(slotCtx.tried, cur ? cur.name : "", name);
+      slotCtx.recipeId = rid; $("#slotSearch").value = ""; persist(); renderPick(); renderRecipes();
+      st.textContent = `Proposé : ${state.recipes[rid].name}. Enregistrez pour valider, ou redemandez.`;
+    }});
+    if (!done.size) { st.textContent = "Aucune proposition exploitable. Réessayez."; st.classList.add("err"); }
+  } catch(e) { st.textContent = errText(e); st.classList.add("err"); }
+  btn.disabled = false;
+});
+
+// Toute la semaine
+$("#proposeWeek").addEventListener("click", () => { $("#wPrefs").value = state.prefs || ""; $("#weekDlg").showModal(); });
+$("#wCancel").addEventListener("click", () => $("#weekDlg").close());
+$("#wGo").addEventListener("click", async () => {
+  const meals = [["midi","#wMidi"],["gouter","#wGouter"],["soir","#wSoir"]].filter(([, id]) => $(id).checked).map(([m]) => m);
+  const replace = $("#wReplace").checked, reuse = $("#wReuse").checked, pairs = $("#wPairs").checked, sunEve = $("#wSunEve").checked;
+  state.prefs = $("#wPrefs").value.trim();
+  const needs = k => { const s = state.plan[k]; return replace || !s || (!s.recipeId && !s.note); };
+  // Groupes de cases qui reçoivent le même plat (lundi+mardi, jeudi+vendredi pour midi et soir)
+  const groups = [];
+  for (let d = 0; d < 7; d++) for (const [mk] of MEALS) {
+    if (!meals.includes(mk)) continue;
+    if (d === 6 && mk === "soir" && !sunEve) continue;
+    const paired = pairs && mk !== "gouter";
+    if (paired && (d === 1 || d === 4)) continue;            // mardi et vendredi suivent lundi et jeudi
+    const members = (paired && (d === 0 || d === 3) ? [d, d + 1] : [d]).map(x => x + "-" + mk).filter(needs);
+    if (!members.length) continue;
+    const label = members.length > 1
+      ? `${DAYS[d]} et ${DAYS[d + 1].toLowerCase()} ${mealLabel(mk).toLowerCase()} (même plat pour les deux jours : cuisiné une fois en double quantité, il doit bien se garder et se réchauffer)`
+      : slotLabel(members[0]);
+    groups.push({ key: members[0], members, label });
+  }
+  $("#weekDlg").close(); persist();
+  if (!groups.length) { setPlanStatus("Tous ces repas sont déjà remplis. Cochez « Remplacer » pour en changer.", true); return; }
+  if (busy.size) return;
+  if (!(await getSample())) { setPlanStatus(NO_CLAUDE, true); return; }
+  const allKeys = groups.flatMap(g => g.members);
+  const byKey = Object.fromEntries(groups.map(g => [g.key, g]));
+  const labels = Object.fromEntries(groups.map(g => [g.key, g.label]));
+  const signal = startBusy(allKeys);
+  let n = 0;
+  setPlanStatus(`Toufette compose ${groups.length} plats pour ${allKeys.length} repas… (cela peut prendre une minute)`);
+  try {
+    const size = 8;   // par lots, pour que les cases se remplissent au fur et à mesure
+    for (let i = 0; i < groups.length; i += size) {
+      const batch = groups.slice(i, i + size).map(g => g.key);
+      await runProposal(batch, { prefs: state.prefs, reuse, signal, labels, exclude: allKeys, onApplied: ({ key, rid, name }) => {
+        for (const k of byKey[key].members) {
+          const prev = state.plan[k] || {};
+          state.plan[k] = { recipeId: rid, persons: prev.persons || state.household, note: "", tried: addTried(prev.tried, slotDishName(prev), name) };
+          busy.delete(k); n++;
+        }
+        setPlanStatus(`Toufette compose les menus… ${n} / ${allKeys.length}`);
+        persist(); render();
+      }});
+      batch.forEach(k => byKey[k].members.forEach(m => busy.delete(m)));
+    }
+    setPlanStatus(n === allKeys.length ? "" : `${n} repas sur ${allKeys.length} proposés. Relancez pour compléter.`, n !== allKeys.length);
+  } catch(e) {
+    setPlanStatus(e && e.code === "cancelled" ? (n ? `Arrêté après ${n} repas.` : "") : errText(e), !(e && e.code === "cancelled"));
+  }
+  endBusy();
+});
+
+/* ---------- Calories ---------- */
+function kcalPrompt(list){
+  return `Estime les calories d'UNE portion (une personne) de chacune de ces recettes, d'après les ingrédients et quantités indiqués (quantités pour le nombre de personnes précisé). Utilise des valeurs nutritionnelles moyennes courantes.
+
+${list.map(r => `[${r.id}] ${r.name} — pour ${r.servings} pers. — ${(r.ingredients || []).map(i => [i.qty ?? "", i.unit, i.name].filter(Boolean).join(" ")).join(", ") || "ingrédients non précisés : estime une recette classique"}`).join("\n")}
+
+Réponds uniquement avec un objet JSON : {"id": kcal_par_personne, ...} avec des nombres entiers. Exemple : {"abc123": 540}`;
+}
+async function estimateKcal(list, signal){
+  const out = await sample.json(kcalPrompt(list), { signal });
+  let n = 0;
+  for (const r of list) {
+    const v = Math.round(parseFloat(out && out[r.id]));
+    if (v > 0 && v < 5000) { state.recipes[r.id].kcal = v; n++; }
+  }
+  return n;
+}
+function recipeFromForm(){
+  const ingredients = [...$("#ingBody").querySelectorAll("tr")].map(tr => {
+    const [q, u, n] = tr.querySelectorAll("input");
+    return { qty: parseQty(q.value), unit: u.value.trim(), name: n.value.trim() };
+  }).filter(x => x.name);
+  return { id: "r", name: $("#rName").value.trim() || "recette", servings: Math.max(1, parseInt($("#rServ").value) || 4), ingredients };
+}
+$("#kcalOne").addEventListener("click", async () => {
+  const st = $("#kcalStatus"), btn = $("#kcalOne"); st.classList.remove("err");
+  if (!(await getSample())) { st.textContent = NO_CLAUDE; st.classList.add("err"); return; }
+  const r = recipeFromForm();
+  if (!r.ingredients.length) { st.textContent = "Ajoutez d'abord les ingrédients."; st.classList.add("err"); return; }
+  btn.disabled = true; st.textContent = "Calcul…";
+  try {
+    const out = await sample.json(kcalPrompt([r]));
+    const v = Math.round(parseFloat(out && out.r));
+    if (v > 0) { $("#rKcal").value = v; st.textContent = "Estimation faite : enregistrez la recette pour la garder."; }
+    else { st.textContent = "Pas d'estimation exploitable. Réessayez."; st.classList.add("err"); }
+  } catch(e) { st.textContent = errText(e); st.classList.add("err"); }
+  btn.disabled = false;
+});
+$("#kcalWeek").addEventListener("click", async () => {
+  if (busy.size) return;
+  if (!(await getSample())) { setPlanStatus(NO_CLAUDE, true); return; }
+  const ids = [...new Set(Object.values(state.plan).map(s => s.recipeId).filter(id => id && state.recipes[id] && !state.recipes[id].kcal))];
+  if (!ids.length) { setPlanStatus("Toutes les recettes du planning ont déjà leurs calories."); return; }
+  const btn = $("#kcalWeek"); btn.disabled = true;
+  setPlanStatus(`Calcul des calories de ${ids.length} recette${ids.length > 1 ? "s" : ""}…`);
+  try {
+    let n = 0;
+    for (let i = 0; i < ids.length; i += 15) n += await estimateKcal(ids.slice(i, i + 15).map(id => state.recipes[id]));
+    commit();
+    setPlanStatus(n === ids.length ? "" : `${n} recette(s) sur ${ids.length} calculée(s). Relancez pour compléter.`, n !== ids.length);
+  } catch(e) { setPlanStatus(errText(e), true); }
+  btn.disabled = false;
+});
+
+/* ---------- Impression ---------- */
+function planningMarkup(){
+  const start = parseISO(state.weekStart), end = new Date(start); end.setDate(end.getDate()+6);
+  let head = "<tr><td class='meal'></td>";
+  DAYS.forEach((dn, i) => { const d = new Date(start); d.setDate(d.getDate()+i); head += `<th>${dn}<small>${esc(fmtDay(d))}</small></th>`; });
+  head += "</tr>";
+  let body = "";
+  const usedRecipes = new Map();
+  for (const [mk, ml] of MEALS) {
+    body += `<tr><td class="meal">${ml}</td>`;
+    for (let i = 0; i < 7; i++) {
+      const s = state.plan[i + "-" + mk], r = s && s.recipeId && state.recipes[s.recipeId];
+      let c = "";
+      if (r) { c += `<div class="pr">${esc(recipeEmoji(r))} ${esc(r.name)}</div><div class="pp">${s.persons || state.household} pers.${r.kcal ? ` · ≈ ${fmtKcal(r.kcal)} kcal/pers.` : ""}</div>`; usedRecipes.set(r.id, r); }
+      if (s && s.note) c += `<div class="pn">${esc(s.note)}</div>`;
+      body += `<td>${c}</td>`;
+    }
+    body += "</tr>";
+  }
+  const refs = [...usedRecipes.values()].filter(r => r.url).map(r => `<div>${esc(r.name)} : ${esc(r.url)}</div>`).join("");
+  return `<div class="p-page p-planning"><div class="p-head"><img src="${$("#logo").src}" alt=""><div><h1>Menus de la semaine</h1><p class="sub">Du ${esc(fmtLong(start))} au ${esc(fmtLong(end))}</p></div></div>
+    <table class="p-table"><thead>${head}</thead><tbody>${body}</tbody></table>${refs ? `<div class="p-recipes">${refs}</div>` : ""}</div>`;
+}
+function coursesMarkup(){
+  const { groups } = buildShopping();
+  const start = parseISO(state.weekStart);
+  const cols = groups.map(g => {
+    const its = g.items.filter(i => !state.checked[i.key]);
+    if (!its.length) return "";
+    return `<div class="p-aisle"><h2>${esc(g.aisle)}</h2>${its.map(i => `<div class="p-it"><span class="b"></span><span class="n">${esc(i.name)}</span><span class="q">${esc(qtyLabel(i))}</span></div>`).join("")}</div>`;
+  }).join("");
+  return `<div class="p-page"><div class="p-head"><img src="${$("#logo").src}" alt=""><div><h1>Liste de courses</h1><p class="sub">Semaine du ${esc(fmtLong(start))}</p></div></div><div class="p-cols">${cols || "<p>Liste vide.</p>"}</div></div>`;
+}
+const markupFor = kind => kind === "planning" ? planningMarkup() : coursesMarkup();
+document.querySelectorAll("[data-print]").forEach(b => b.addEventListener("click", () => {
+  $("#print-area").innerHTML = markupFor(b.dataset.print);
+  try { window.print(); } catch(e) {}
+}));
+render();
+initCaps();
+initCloud();
+})();
+</script>
+</body>
+</html>
