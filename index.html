@@ -169,6 +169,12 @@ label.f > input,label.f > select,label.f > textarea{color:var(--ink);font-size:1
 .ing-scroll{overflow-x:auto}
 .ing-table .x button{background:none;border:0;color:var(--muted);cursor:pointer;font-size:18px}
 #slotStatus:empty{display:none}
+.adapt{border:1.5px dashed #CFC5B1;border-radius:12px;padding:12px 14px;display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center}
+.adapt strong{font-weight:700}
+.adapt label{display:flex;align-items:center;gap:6px;font-size:15px}
+.adapt input[type=number]{width:84px}
+.adapt input[type=checkbox]{width:18px;height:18px;accent-color:var(--ink)}
+.adapt .status{flex:1 1 100%}
 .fromsite{border:2px solid var(--ink);border-radius:14px;background:var(--surface);padding:14px 16px;margin-bottom:16px;display:grid;grid-template-columns:auto 1fr;gap:6px 18px;align-items:center}
 .fromsite h3{grid-column:1 / -1;font-family:var(--serif);font-weight:400;font-size:20px;margin:0}
 .fromsite ol{margin:0;padding-left:20px;font-size:15px}
@@ -234,6 +240,19 @@ label.f > input,label.f > select,label.f > textarea{color:var(--ink);font-size:1
 .p-it .n{flex:1}
 .p-it .q{font-weight:700;white-space:nowrap}
 .p-recipes{margin-top:6mm;font-size:11px;color:#333;columns:2}
+.p-sheet{break-after:page;page-break-after:always}
+.p-sheet:last-child{break-after:auto;page-break-after:auto}
+.p-sheet .when{font-size:12px;color:#555;margin:0 0 1mm}
+.p-sheet .facts{font-size:12px;margin:0 0 4mm;color:#333}
+.p-sheet h2{font-family:var(--serif);font-weight:400;font-size:16px;margin:0 0 2mm;border-bottom:1px solid #999}
+.p-sheet .cols{display:flex;gap:8mm;align-items:flex-start}
+.p-sheet .ing{flex:0 0 62mm}
+.p-sheet .ing div{font-size:12px;padding:1.2mm 0;border-bottom:1px dotted #bbb;display:flex;gap:4px;justify-content:space-between}
+.p-sheet .ing .q{font-weight:700;white-space:nowrap}
+.p-sheet .steps{flex:1}
+.p-sheet .steps ol{margin:0;padding-left:5mm;font-size:12.5px;line-height:1.5}
+.p-sheet .steps li{margin-bottom:2mm}
+.p-sheet .src{margin-top:5mm;font-size:10.5px;color:#444;word-break:break-all}
 .p-recipes div{break-inside:avoid}
 </style>
 </head>
@@ -274,6 +293,7 @@ label.f > input,label.f > select,label.f > textarea{color:var(--ink);font-size:1
         <button class="btn small ai" id="proposeWeek">✦ Proposer la semaine</button>
         <button class="btn small ai" id="kcalWeek">✦ Calculer les calories</button>
         <button class="btn small danger" id="clearWeek">Vider la semaine</button>
+        <button class="btn small" id="printSheets">Imprimer les fiches recettes</button>
         <button class="btn primary" data-print="planning">Imprimer le planning</button>
       </div>
     </div>
@@ -331,6 +351,13 @@ label.f > input,label.f > select,label.f > textarea{color:var(--ink);font-size:1
       </div>
       <span class="status" id="slotStatus"></span>
       <div class="picklist" id="slotPick" role="radiogroup" aria-label="Mes recettes"></div>
+      <div class="adapt" id="adaptBox">
+        <strong>Adapter cette recette</strong>
+        <label title="Cuisson sous pression, étapes et liquides revus pour le Cookeo"><input type="checkbox" id="adCookeo"> Version Cookeo</label>
+        <label>Objectif <input type="number" id="adKcal" min="100" max="2000" step="10" placeholder="kcal"> kcal / pers.</label>
+        <button class="btn small ai" type="button" id="adGo">✦ Adapter avec Toufette</button>
+        <span class="status" id="adStatus"></span>
+      </div>
       <div class="row" style="align-items:center">
         <div style="flex:0 0 auto;display:flex;align-items:center;gap:10px">
           <span class="hint">Nombre de personnes</span>
@@ -340,7 +367,7 @@ label.f > input,label.f > select,label.f > textarea{color:var(--ink);font-size:1
       </div>
     </div>
     <div class="dlg-foot">
-      <button class="btn danger" id="slotClear">Vider ce repas</button>
+      <div class="grp"><button class="btn danger" id="slotClear">Vider ce repas</button><button class="btn" id="slotSheet">Imprimer la fiche</button></div>
       <div class="grp"><button class="btn" id="slotCancel">Annuler</button><button class="btn primary" id="slotSave">Enregistrer</button></div>
     </div>
   </div>
@@ -784,12 +811,14 @@ function renderRecipes(){
     grid.append(el("div", {class:"rcard"},
       el("h3", {text: recipeEmoji(r) + " " + r.name}),
       el("div", {class:"meta"}, `Pour ${r.servings} pers. · ${(r.ingredients||[]).length} ingrédients${r.kcal ? ` · ≈ ${fmtKcal(r.kcal)} kcal / pers.` : ""} `,
-        r.estimated ? el("span", {class:"tag warn", title:"Recette proposée par Toufette à partir du nom : vérifiez les quantités", text:"à vérifier"}) : null,
+        r.adaptedFrom ? el("span", {class:"tag", title:`Version retravaillée de : ${r.adaptedFrom}`, text:"adaptée"}) : null,
+      r.estimated ? el("span", {class:"tag warn", title:"Recette proposée par Toufette à partir du nom : vérifiez les quantités", text:"à vérifier"}) : null,
         used.has(r.id) ? el("span", {class:"tag", text: `${n} repas cette semaine`}) : null),
       el("div", {class:"ings", text: (r.ingredients||[]).map(x => x.name).join(", ")}),
       el("div", {class:"actions"},
         el("button", {class:"btn small", onclick: () => openRecipe(r.id)}, "Modifier"),
-        el("a", {class:"btn small", href: recipeHref(r), target:"_blank", rel:"noopener"}, r.url ? "Voir la recette" : "Chercher la recette"))));
+        el("a", {class:"btn small", href: recipeHref(r), target:"_blank", rel:"noopener"}, r.url ? "Voir la recette" : "Chercher la recette"),
+        el("button", {class:"btn small", onclick: () => printHtml(sheetMarkup(r, r.servings, ""))}, "Fiche"))));
   }
   box.append(grid);
 }
@@ -876,6 +905,7 @@ function openSlot(dayIdx, meal){
   slotCtx = { key, recipeId: s.recipeId && state.recipes[s.recipeId] ? s.recipeId : null, persons: s.persons || state.household, tried: [...(s.tried || [])] };
   $("#slotTitle").textContent = `${DAYS[dayIdx]} – ${mealLabel(meal).toLowerCase()}`;
   $("#slotStatus").textContent = ""; $("#slotStatus").classList.remove("err");
+  $("#adCookeo").checked = false; $("#adKcal").value = ""; $("#adStatus").textContent = ""; $("#adStatus").classList.remove("err");
   $("#slotNote").value = s.note || "";
   $("#slotSearch").value = "";
   $("#pVal").textContent = slotCtx.persons;
@@ -886,6 +916,7 @@ function openSlot(dayIdx, meal){
 }
 function renderPick(){
   renderChosen();
+  refreshAdapt();
   const box = $("#slotPick"); box.textContent = "";
   const q = normName($("#slotSearch").value);
   const list = Object.values(state.recipes).filter(r => !q || normName(r.name).includes(q)).sort((a,b) => a.name.localeCompare(b.name, "fr"));
@@ -924,6 +955,17 @@ $("#slotSave").addEventListener("click", () => {
   if (!slotCtx.recipeId && !note) delete state.plan[slotCtx.key];
   else state.plan[slotCtx.key] = { recipeId: slotCtx.recipeId, persons: slotCtx.persons, note, tried: slotCtx.tried };
   commit(); $("#slotDlg").close();
+});
+$("#slotSheet").addEventListener("click", () => {
+  const r = slotCtx && slotCtx.recipeId && state.recipes[slotCtx.recipeId];
+  if (!r) { const st = $("#slotStatus"); st.textContent = "Choisissez d'abord une recette."; st.classList.add("err"); return; }
+  const [d, mk] = slotCtx.key.split("-");
+  printHtml(sheetMarkup(r, slotCtx.persons, `${DAYS[+d]} ${mealLabel(mk).toLowerCase()}`));
+});
+$("#printSheets").addEventListener("click", () => {
+  const html = weekSheets();
+  if (!html) { setPlanStatus("Aucune recette dans le planning de cette semaine.", true); return; }
+  printHtml(html);
 });
 $("#slotNew").addEventListener("click", () => { $("#slotDlg").close(); openRecipe(null, true); });
 
@@ -1212,6 +1254,59 @@ $("#slotPropose").addEventListener("click", async () => {
   btn.disabled = false;
 });
 
+// Adapter la recette d'une case : version Cookeo et/ou objectif de calories
+function adaptPrompt(r, { cookeo, target }){
+  const ings = (r.ingredients || []).map(i => [i.qty ?? "", i.unit, i.name].filter(x => x !== "" && x != null).join(" ")).join(", ");
+  const buts = [
+    cookeo ? "la rendre réalisable au Cookeo (multicuiseur sous pression)" : "",
+    target ? `arriver à environ ${target} kcal par personne (actuellement ${r.kcal ? r.kcal + " kcal" : "non estimé"})` : ""
+  ].filter(Boolean).join(" et ");
+  return `Voici une recette française pour ${r.servings} personne(s) :
+Nom : ${r.name}
+Ingrédients : ${ings || "non précisés"}
+Étapes : ${r.steps || "non précisées"}
+
+Retravaille cette recette pour ${buts}. Garde le même plat, reconnaissable.
+${cookeo ? `Pour le Cookeo : utilise les modes de l'appareil (dorer, mijoter, cuisson sous pression, maintien au chaud) avec des durées précises ; réduis les liquides d'environ un quart puisqu'il n'y a presque pas d'évaporation ; vérifie qu'il y a au moins 20 cl de liquide ; adapte l'ordre des étapes (dorer d'abord, tout ajouter, puis cuisson sous pression) ; indique les ingrédients à ajouter seulement à la fin (crème, herbes, féculents fragiles).
+` : ""}${target ? `Pour les calories : ajuste les quantités et, si besoin, remplace quelques ingrédients par des équivalents plus légers ou plus riches, pour approcher ${target} kcal par portion sans dénaturer le plat ni réduire le volume de l'assiette de façon absurde. Garde ${r.servings} personne(s).
+` : ""}
+Réponds uniquement avec un objet JSON :
+{"name":"${r.name}${cookeo ? " (Cookeo)" : ""}","emoji":"${r.emoji || ""}","kcal":000,"servings":${r.servings},"ingredients":[{"qty":200,"unit":"g","name":"farine","aisle":"Épicerie salée"}],"steps":"étapes courtes, une par ligne","note":"une phrase sur ce qui a changé"}
+Règles : "unit" parmi g, kg, ml, cl, l, pièce, c. à s., c. à c., pincée, gousse, botte, tranche, boîte, sachet, paquet, pot ; "qty" est un nombre ou null ; "name" au singulier, en minuscules, sans préparation ; "aisle" parmi : ${AISLES.join(", ")} ; "kcal" = calories réelles d'une portion de la recette adaptée.`;
+}
+function refreshAdapt(){
+  const r = slotCtx && slotCtx.recipeId && state.recipes[slotCtx.recipeId];
+  $("#adaptBox").hidden = !r;
+  if (r) $("#adKcal").placeholder = r.kcal ? r.kcal : "kcal";
+}
+$("#adGo").addEventListener("click", async () => {
+  const r = slotCtx && slotCtx.recipeId && state.recipes[slotCtx.recipeId];
+  const st = $("#adStatus"), btn = $("#adGo");
+  st.classList.remove("err");
+  if (!r) return;
+  const cookeo = $("#adCookeo").checked, target = Math.round(parseFloat($("#adKcal").value)) || 0;
+  if (!cookeo && !target) { st.textContent = "Cochez « Version Cookeo » ou indiquez un objectif de calories."; st.classList.add("err"); return; }
+  if (!(await getSample())) { st.textContent = NO_CLAUDE || "Toufette n'est pas disponible."; st.classList.add("err"); return; }
+  btn.disabled = true; st.textContent = "Toufette retravaille la recette…";
+  try {
+    const o = await sample.json(adaptPrompt(r, { cookeo, target }));
+    const ingredients = (o && Array.isArray(o.ingredients) ? o.ingredients : []).filter(x => x && x.name)
+      .map(x => ({ qty: parseQty(x.qty), unit: String(x.unit || ""), name: String(x.name), aisle: AISLES.includes(x.aisle) ? x.aisle : "Autres" }));
+    if (!ingredients.length) throw { code: "invalid_json" };
+    const id = uid();
+    state.recipes[id] = { id, name: String(o.name || r.name).slice(0, 120), emoji: String(o.emoji || r.emoji || "").slice(0, 8),
+      kcal: Math.round(parseFloat(o.kcal)) || null, servings: Math.max(1, parseInt(o.servings) || r.servings),
+      url: r.url || "", steps: String(o.steps || ""), ingredients, estimated: true, adaptedFrom: r.name };
+    slotCtx.recipeId = id; $("#slotSearch").value = "";
+    persist(); renderPick(); renderRecipes();
+    st.textContent = `${state.recipes[id].name} — ${state.recipes[id].kcal ? "≈ " + fmtKcal(state.recipes[id].kcal) + " kcal/pers. · " : ""}${o.note ? o.note : "à vérifier"} Enregistrez pour valider.`;
+  } catch(e) {
+    st.textContent = (e && e.code === "invalid_json") ? "Réponse inexploitable. Réessayez." : errText(e);
+    st.classList.add("err");
+  }
+  btn.disabled = false;
+});
+
 // Toute la semaine
 $("#proposeWeek").addEventListener("click", () => { $("#wPrefs").value = state.prefs || ""; $("#weekDlg").showModal(); });
 $("#wCancel").addEventListener("click", () => $("#weekDlg").close());
@@ -1353,7 +1448,44 @@ function coursesMarkup(){
   }).join("");
   return `<div class="p-page"><div class="p-head"><img src="${$("#logo").src}" alt=""><div><h1>Liste de courses</h1><p class="sub">Semaine du ${esc(fmtLong(start))}</p></div></div><div class="p-cols">${cols || "<p>Liste vide.</p>"}</div></div>`;
 }
-const markupFor = kind => kind === "planning" ? planningMarkup() : coursesMarkup();
+// Fiche d'une recette, quantités ajustées au nombre de personnes du repas
+function sheetMarkup(r, persons, when){
+  const factor = (persons || r.servings) / (r.servings || 1);
+  const lines = (r.ingredients || []).map(i => {
+    const [u, mult] = normUnit(i.unit);
+    const q = i.qty == null ? null : roundQty(i.qty * mult * factor, u);
+    return `<div><span>${esc(i.name)}</span><span class="q">${esc(q == null ? "" : fmtQty(q, u))}</span></div>`;
+  }).join("");
+  const steps = String(r.steps || "").split("\n").map(x => x.replace(/^\s*\d+[.)]\s*/, "").trim()).filter(Boolean);
+  const facts = [`Pour ${persons || r.servings} personne${(persons || r.servings) > 1 ? "s" : ""}`,
+    r.kcal ? `≈ ${fmtKcal(r.kcal)} kcal par personne` : "", r.estimated ? "quantités estimées, à vérifier" : ""].filter(Boolean).join(" · ");
+  return `<div class="p-page p-sheet"><div class="p-head"><img src="${$("#logo").src}" alt=""><div>
+      <h1>${esc(recipeEmoji(r))} ${esc(r.name)}</h1>
+      ${when ? `<p class="when">${esc(when)}</p>` : ""}</div></div>
+    <p class="facts">${esc(facts)}</p>
+    <div class="cols">
+      <div class="ing"><h2>Ingrédients</h2>${lines || "<div>Aucun ingrédient enregistré</div>"}</div>
+      <div class="steps"><h2>Préparation</h2>${steps.length ? `<ol>${steps.map(x => `<li>${esc(x)}</li>`).join("")}</ol>` : "<p>Pas d'étapes enregistrées.</p>"}</div>
+    </div>
+    ${r.url ? `<p class="src">Recette : ${esc(r.url)}</p>` : ""}</div>`;
+}
+function printHtml(html){
+  $("#print-area").innerHTML = html;
+  try { window.print(); } catch(e) {}
+}
+// Fiches de tous les repas de la semaine, une par page
+function weekSheets(){
+  const seen = new Map();
+  for (let d = 0; d < 7; d++) for (const [mk] of MEALS) {
+    const key = d + "-" + mk, sl = state.plan[key], r = sl && sl.recipeId && state.recipes[sl.recipeId];
+    if (!r) continue;
+    const persons = sl.persons || state.household, id = r.id + "|" + persons;
+    if (seen.has(id)) { seen.get(id).when.push(`${DAYS[d]} ${mealLabel(mk).toLowerCase()}`); continue; }
+    seen.set(id, { r, persons, when: [`${DAYS[d]} ${mealLabel(mk).toLowerCase()}`] });
+  }
+  return [...seen.values()].map(x => sheetMarkup(x.r, x.persons, x.when.join(" · "))).join("");
+}
+const markupFor = kind => kind === "planning" ? planningMarkup() : kind === "fiches" ? weekSheets() : coursesMarkup();
 document.querySelectorAll("[data-print]").forEach(b => b.addEventListener("click", () => {
   $("#print-area").innerHTML = markupFor(b.dataset.print);
   try { window.print(); } catch(e) {}
