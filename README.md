@@ -6,8 +6,9 @@ Tout tient dans un seul fichier, `index.html`. Pas de serveur, pas de base de do
 
 ## Ce que ça fait
 
-- **Planning** : 7 jours × 3 repas, nombre de personnes réglable case par case, calories estimées par personne, lien direct vers la recette, navigation d'une semaine à l'autre.
+- **Planning** : 7 jours × 3 repas, nombre de personnes réglable case par case, calories estimées par personne, fiche recette ouvrable d'un clic (📄), lien direct vers la recette, navigation d'une semaine à l'autre.
 - **Propositions** : un plat pour une case, ou toute la semaine d'un coup. Même plat lundi et mardi, et jeudi et vendredi (à cuisiner une fois pour deux jours), rien le dimanche soir, et jamais un plat déjà proposé ou servi les semaines voisines.
+- **Chercher des idées** : depuis une case, des mots-clés (ingrédients à écouler, envies, « rapide ») donnent 4 propositions de plats, classiques ou originaux, à choisir d'un clic.
 - **Adapter une recette** : depuis une case, version Cookeo (modes, durées, liquides revus) et/ou objectif de calories par personne, avec les quantités réajustées. La recette d'origine est conservée.
 - **Recettes** : import depuis un lien, depuis un texte collé, ou saisie à la main. Un favori « Copier pour Toufette » dépanne sur les sites difficiles à lire.
 - **Liste de courses** : quantités ajustées au nombre de personnes, ingrédients identiques additionnés (500 g + 1 kg = 1,5 kg), rangés par rayon, avec articles à cocher et ajouts libres.

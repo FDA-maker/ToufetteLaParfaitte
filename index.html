@@ -89,6 +89,15 @@ nav.tabs button[aria-selected=true]{color:var(--ink);border-bottom-color:var(--b
 .slot.busy .add{color:var(--basil)}
 .rlink{position:absolute;right:36px;top:9px;font-size:13px;line-height:1.2;color:var(--bleu);text-decoration:none;font-weight:700}
 .rlink:hover{text-decoration:underline}
+.sheetbtn{position:absolute;left:6px;bottom:5px;width:26px;height:26px;border-radius:50%;border:1px solid var(--line);background:var(--surface);cursor:pointer;font-size:13px;line-height:1;display:flex;align-items:center;justify-content:center;padding:0}
+.sheetbtn:hover{border-color:var(--ink)}
+#sheetDlg .dlg-body{padding:0 20px 8px}
+#sheetDlg .p-page{color:var(--ink)}
+#sheetDlg .p-page h1{color:var(--ink)}
+#sheetDlg .p-sheet .cols{flex-wrap:wrap}
+#sheetDlg .p-sheet .ing{flex:1 1 220px}
+#sheetDlg .p-sheet .steps{flex:1 1 260px}
+#sheetDlg .p-head img{width:56px}
 .propose{position:absolute;top:5px;right:5px;width:26px;height:26px;border-radius:50%;border:1px solid var(--line);background:var(--surface);cursor:pointer;font-size:13px;line-height:1;display:flex;align-items:center;justify-content:center;color:var(--basil)}
 .propose:hover{border-color:var(--basil)}
 .propose:disabled{opacity:.4;cursor:default}
@@ -169,6 +178,16 @@ label.f > input,label.f > select,label.f > textarea{color:var(--ink);font-size:1
 .ing-scroll{overflow-x:auto}
 .ing-table .x button{background:none;border:0;color:var(--muted);cursor:pointer;font-size:18px}
 #slotStatus:empty{display:none}
+.kwbox{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.kwbox input[type=text]{flex:1 1 240px}
+.kwbox .status{flex:1 1 100%}
+.ideas{display:flex;flex-direction:column;gap:6px}
+.idea{display:grid;grid-template-columns:30px 1fr auto;gap:10px;align-items:center;text-align:left;background:var(--surface);border:1.5px solid var(--line);border-radius:10px;padding:9px 12px;cursor:pointer;width:100%}
+.idea:hover{border-color:var(--ink);background:var(--slot)}
+.idea .iemo{font-size:22px;line-height:1;text-align:center}
+.idea .iname{font-weight:700;line-height:1.25}
+.idea .iwhy{display:block;font-weight:400;font-size:13.5px;color:var(--muted);line-height:1.35}
+.idea .ikcal{font-size:13px;color:var(--muted);white-space:nowrap}
 .adapt{border:1.5px dashed #CFC5B1;border-radius:12px;padding:12px 14px;display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center}
 .adapt strong{font-weight:700}
 .adapt label{display:flex;align-items:center;gap:6px;font-size:15px}
@@ -349,6 +368,12 @@ label.f > input,label.f > select,label.f > textarea{color:var(--ink);font-size:1
         <button class="btn ai" id="slotPropose" style="flex:0 0 auto">✦ Proposer une recette</button>
         <button class="btn" id="slotNew" style="flex:0 0 auto">Nouvelle recette</button>
       </div>
+      <div class="kwbox">
+        <input type="text" id="kwInput" placeholder="Mots-clés : poulet, riz, courgettes à finir, rapide…" aria-label="Mots-clés pour chercher une recette">
+        <button class="btn ai" type="button" id="kwGo">✦ Chercher des idées</button>
+        <span class="status" id="kwStatus"></span>
+      </div>
+      <div class="ideas" id="kwList"></div>
       <span class="status" id="slotStatus"></span>
       <div class="picklist" id="slotPick" role="radiogroup" aria-label="Mes recettes"></div>
       <div class="adapt" id="adaptBox">
@@ -474,6 +499,22 @@ label.f > input,label.f > select,label.f > textarea{color:var(--ink);font-size:1
       </div>
     </div>
     <div class="dlg-foot"><span></span><div class="grp"><button class="btn primary" id="setClose">Fermer</button></div></div>
+  </div>
+</dialog>
+
+<!-- Dialogue : fiche recette -->
+<dialog id="sheetDlg">
+  <div class="dlg">
+    <div class="dlg-head"><h2>Fiche recette</h2></div>
+    <div class="dlg-body" id="sheetBody"></div>
+    <div class="dlg-foot">
+      <a class="btn" id="sheetLink" href="#" target="_blank" rel="noopener">Voir la recette ↗</a>
+      <div class="grp">
+        <button class="btn dl" id="sheetDl" hidden>Télécharger</button>
+        <button class="btn" id="sheetPrint">Imprimer</button>
+        <button class="btn primary" id="sheetClose">Fermer</button>
+      </div>
+    </div>
   </div>
 </dialog>
 
@@ -772,6 +813,8 @@ function renderWeek(){
       }
       const wrap = el("div", {class:"slotwrap"}, btn);
       if (r && !isBusy) {
+        wrap.append(el("button", {class:"sheetbtn", type:"button", title:"Ouvrir la fiche recette", "aria-label": `Fiche recette : ${r.name}`,
+          onclick: () => openSheet(r, s.persons || state.household, `${dn} ${ml.toLowerCase()}`)}, "📄"));
         wrap.append(el("a", {class:"rlink", href: recipeHref(r), target:"_blank", rel:"noopener", title: r.url ? "Ouvrir la recette" : "Chercher cette recette sur le web"},
           el("span", {class:"long", text: r.url ? "Recette ↗" : "Chercher ↗"}), el("span", {class:"short", text: "↗"})));
         const n = s.persons || state.household;
@@ -905,6 +948,7 @@ function openSlot(dayIdx, meal){
   slotCtx = { key, recipeId: s.recipeId && state.recipes[s.recipeId] ? s.recipeId : null, persons: s.persons || state.household, tried: [...(s.tried || [])] };
   $("#slotTitle").textContent = `${DAYS[dayIdx]} – ${mealLabel(meal).toLowerCase()}`;
   $("#slotStatus").textContent = ""; $("#slotStatus").classList.remove("err");
+  $("#kwInput").value = ""; $("#kwList").textContent = ""; $("#kwStatus").textContent = ""; $("#kwStatus").classList.remove("err");
   $("#adCookeo").checked = false; $("#adKcal").value = ""; $("#adStatus").textContent = ""; $("#adStatus").classList.remove("err");
   $("#slotNote").value = s.note || "";
   $("#slotSearch").value = "";
@@ -961,6 +1005,21 @@ $("#slotSheet").addEventListener("click", () => {
   if (!r) { const st = $("#slotStatus"); st.textContent = "Choisissez d'abord une recette."; st.classList.add("err"); return; }
   const [d, mk] = slotCtx.key.split("-");
   printHtml(sheetMarkup(r, slotCtx.persons, `${DAYS[+d]} ${mealLabel(mk).toLowerCase()}`));
+});
+let sheetCtx = null;
+function openSheet(r, persons, when){
+  sheetCtx = { r, persons, when };
+  $("#sheetBody").innerHTML = sheetMarkup(r, persons, when);
+  const link = $("#sheetLink");
+  link.href = recipeHref(r);
+  link.textContent = r.url ? "Voir la recette ↗" : "Chercher la recette ↗";
+  $("#sheetDlg").showModal();
+}
+$("#sheetClose").addEventListener("click", () => $("#sheetDlg").close());
+$("#sheetPrint").addEventListener("click", () => { if (sheetCtx) printHtml(sheetMarkup(sheetCtx.r, sheetCtx.persons, sheetCtx.when)); });
+$("#sheetDl").addEventListener("click", () => {
+  if (!sheetCtx) return;
+  downloadDoc("Fiche recette", sheetMarkup(sheetCtx.r, sheetCtx.persons, sheetCtx.when), `fiche-${dishKey(sheetCtx.r.name).replace(/ /g, "-")}.html`);
 });
 $("#printSheets").addEventListener("click", () => {
   const html = weekSheets();
@@ -1253,6 +1312,71 @@ $("#slotPropose").addEventListener("click", async () => {
   } catch(e) { st.textContent = errText(e); st.classList.add("err"); }
   btn.disabled = false;
 });
+
+// Idées de recettes à partir de mots-clés (envies, produits à écouler)
+function kwPrompt(words, key){
+  const [d, mk] = key.split("-");
+  const start = parseISO(state.weekStart);
+  const forb = [...forbiddenFor([key]).values()].slice(0, 120);
+  return `Tu proposes des idées de repas à une famille française. Repas concerné : ${DAYS[+d]} ${mealLabel(mk).toLowerCase()}, pour ${slotCtx.persons} personne(s). Semaine du ${fmtLong(start)} (mois de ${start.toLocaleDateString("fr-FR", { month: "long" })}).
+${state.prefs ? `Habitudes et contraintes de la famille : ${state.prefs}\n` : ""}
+Mots-clés donnés par la personne (ingrédients à utiliser en priorité, envies, contraintes) :
+${words}
+
+Propose 4 plats DIFFÉRENTS qui respectent ces mots-clés : tiens compte de tous quand c'est possible, sinon du plus grand nombre. Mélange au moins un plat classique et connu, et au moins une idée plus originale ou inattendue. ${mk === "gouter" ? "Ce sont des goûters : collations simples, sucrées ou salées." : "Ce sont des plats complets."}
+${forb.length ? `Ne propose aucun de ces plats, déjà au menu ces semaines-ci :\n${forb.join("\n")}\n` : ""}
+Format de réponse : UNE ligne JSON par idée, rien d'autre (pas de texte, pas de balises) :
+{"name":"Nom du plat","emoji":"🍲","kcal":520,"servings":${slotCtx.persons},"why":"une phrase courte : en quoi ça colle aux mots-clés","ingredients":[{"qty":200,"unit":"g","name":"riz","aisle":"Épicerie salée"}],"steps":"3 à 6 étapes courtes, séparées par \\n"}
+Règles : "unit" parmi g, kg, ml, cl, l, pièce, c. à s., c. à c., pincée, gousse, botte, tranche, boîte, sachet, paquet, pot ; "qty" est un nombre ou null ; "name" au singulier, en minuscules, sans préparation ; "aisle" parmi : ${AISLES.join(", ")} ; quantités réalistes pour ${slotCtx.persons} personne(s) ; "kcal" = calories d'une portion.`;
+}
+function renderIdeas(ideas){
+  const box = $("#kwList"); box.textContent = "";
+  for (const o of ideas) {
+    box.append(el("button", {type:"button", class:"idea", onclick: () => pickIdea(o)},
+      el("span", {class:"iemo", "aria-hidden":"true", text: o.emoji || recipeEmoji(o)}),
+      el("span", {class:"iname"}, o.name, o.why ? el("span", {class:"iwhy", text: o.why}) : null),
+      el("span", {class:"ikcal", text: o.kcal ? `≈ ${fmtKcal(o.kcal)} kcal` : ""})));
+  }
+}
+function pickIdea(o){
+  const id = uid();
+  state.recipes[id] = { id, name: String(o.name), emoji: String(o.emoji || "").slice(0, 8), kcal: Math.round(parseFloat(o.kcal)) || null,
+    servings: Math.max(1, parseInt(o.servings) || slotCtx.persons), url: "", steps: String(o.steps || ""), estimated: true,
+    ingredients: (o.ingredients || []).filter(x => x && x.name).map(x => ({ qty: parseQty(x.qty), unit: String(x.unit || ""), name: String(x.name), aisle: AISLES.includes(x.aisle) ? x.aisle : "Autres" })) };
+  slotCtx.tried = addTried(slotCtx.tried, o.name);
+  slotCtx.recipeId = id;
+  $("#kwList").textContent = ""; $("#kwStatus").textContent = `${o.name} : choisi. Enregistrez pour valider.`;
+  persist(); renderPick(); renderRecipes();
+}
+$("#kwGo").addEventListener("click", async () => {
+  const words = $("#kwInput").value.trim(), st = $("#kwStatus"), btn = $("#kwGo");
+  st.classList.remove("err");
+  if (!words) { st.textContent = "Tapez un ou plusieurs mots-clés, par exemple : poulet, riz."; st.classList.add("err"); return; }
+  if (!(await getSample())) { st.textContent = NO_CLAUDE || "Toufette n'est pas disponible."; st.classList.add("err"); return; }
+  btn.disabled = true; $("#kwList").textContent = ""; st.textContent = "Toufette cherche des idées…";
+  const ideas = [], seen = forbiddenFor([slotCtx.key], slotCtx.tried);   // pas d'idée déjà au menu ou déjà vue ici
+  let pendingLine = "";
+  const eat = line => {
+    line = line.trim().replace(/^```(json)?|```$/g, "").trim();
+    if (!line.startsWith("{")) return;
+    let o; try { o = JSON.parse(line); } catch(e) { return; }
+    if (!o || !o.name || !Array.isArray(o.ingredients)) return;
+    const k = dishKey(o.name);
+    if (!k || seen.has(k)) return;
+    seen.set(k, o.name); ideas.push(o); renderIdeas(ideas);
+    st.textContent = `${ideas.length} idée${ideas.length > 1 ? "s" : ""}… cliquez sur celle qui vous tente.`;
+  };
+  try {
+    await sample(kwPrompt(words, slotCtx.key), { cache: false, onText: ({ delta }) => {
+      const lines = (pendingLine + delta).split("\n"); pendingLine = lines.pop(); lines.forEach(eat);
+    }});
+    eat(pendingLine);
+    if (!ideas.length) { st.textContent = "Aucune idée exploitable. Reformulez vos mots-clés."; st.classList.add("err"); }
+    else st.textContent = `${ideas.length} idée${ideas.length > 1 ? "s" : ""} : cliquez sur celle qui vous tente, ou relancez pour d'autres.`;
+  } catch(e) { st.textContent = errText(e); st.classList.add("err"); }
+  btn.disabled = false;
+});
+$("#kwInput").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); $("#kwGo").click(); } });
 
 // Adapter la recette d'une case : version Cookeo et/ou objectif de calories
 function adaptPrompt(r, { cookeo, target }){
